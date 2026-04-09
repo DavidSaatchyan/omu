@@ -450,6 +450,12 @@
 /* Текст подсказки */
 .hint-container {
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    height: 74px;
 }
 
 .phase-name {
@@ -458,7 +464,9 @@
     font-weight: 330;
     letter-spacing: 3px;
     color: rgba(255, 255, 255, 0.75);
-    transition: opacity 0.15s ease, transform 0.2s ease;
+    line-height: 34px;
+    height: 34px;
+    will-change: opacity;
 }
 
 .phase-instruction {
@@ -466,9 +474,10 @@
     font-size: 14px;
     font-weight: 350;
     color: rgba(255, 255, 255, 0.4);
-    margin-top: 8px;
     letter-spacing: 0.5px;
-    transition: opacity 0.15s ease 0.05s, transform 0.2s ease;
+    line-height: 20px;
+    height: 20px;
+    will-change: opacity;
 }
 
 /* Кнопки управления (пауза) */
