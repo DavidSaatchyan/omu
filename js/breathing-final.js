@@ -1,4 +1,4 @@
-// breathing-final.js — правильная анимация дыхания
+// breathing-final.js — супер-плавная анимация дыхания
 
 class BreathingPractice {
     constructor() {
@@ -13,10 +13,10 @@ class BreathingPractice {
         this.finishActionBtn = document.getElementById('finishActionBtn');
         
         // Состояние
-        this.isActive = false;      // практика запущена
-        this.isPaused = false;      // на паузе
-        this.remainingSeconds = 0;   // осталось секунд
-        this.totalSeconds = 0;       // всего секунд в практике
+        this.isActive = false;
+        this.isPaused = false;
+        this.remainingSeconds = 0;
+        this.totalSeconds = 0;
         this.timerInterval = null;
         this.animationId = null;
         this.cycleStartTime = null;
@@ -48,13 +48,9 @@ class BreathingPractice {
         this.cycleDuration = this.practiceTypes[0].totalCycle;
         
         // Параметры фигуры
-        this.minScale = 0.5;
+        this.minScale = 0.55;
         this.maxScale = 1.0;
         this.currentScale = this.minScale;
-        
-        // Используем картинку, если есть
-        this.useImage = false; // меняем на true, когда добавим картинку
-        this.figureImage = null;
         
         this.init();
     }
@@ -87,7 +83,6 @@ class BreathingPractice {
     }
     
     setupEventListeners() {
-        // Play/Pause
         this.playBtn.addEventListener('click', () => {
             if (!this.isActive) {
                 this.startPractice();
@@ -98,7 +93,6 @@ class BreathingPractice {
             }
         });
         
-        // Отмена
         this.cancelBtn.addEventListener('click', () => {
             if (confirm('Прервать практику?')) {
                 this.stopPractice();
@@ -106,7 +100,6 @@ class BreathingPractice {
             }
         });
         
-        // Финиш
         this.finishActionBtn.addEventListener('click', () => {
             if (confirm('Завершить практику?')) {
                 this.stopPractice();
@@ -120,7 +113,6 @@ class BreathingPractice {
     }
     
     resetUI() {
-        // Сброс к исходному состоянию (до начала практики)
         this.isActive = false;
         this.isPaused = false;
         this.playBtn.textContent = '▶';
@@ -129,16 +121,16 @@ class BreathingPractice {
         this.phaseInstruction.textContent = 'почувствуй тело';
         this.actionButtons.classList.add('hidden');
         
-        // Фигура в исходном положении
+        // Сброс видимости текста
+        this.phaseName.style.opacity = '1';
+        this.phaseInstruction.style.opacity = '1';
+        
         this.currentScale = this.minScale;
         this.updateFigure();
-        
-        // Показываем название практики на фигуре (опционально)
-        this.figure.style.opacity = '0.4';
+        this.figure.style.opacity = '0.5';
     }
     
     startPractice() {
-        // Длительность практики: 3-5 минут (выбираем 4 минуты = 240 сек)
         this.totalSeconds = 240; // 4 минуты
         this.remainingSeconds = this.totalSeconds;
         
@@ -147,14 +139,16 @@ class BreathingPractice {
         this.playBtn.textContent = '⏸';
         this.actionButtons.classList.add('hidden');
         
+        // Возвращаем видимость текста
+        this.phaseName.style.opacity = '1';
+        this.phaseInstruction.style.opacity = '1';
+        
         this.updateTimerDisplay();
         this.startBreathingAnimation();
         this.startTimer();
         
-        // Фигура становится активной
-        this.figure.style.opacity = '0.7';
+        this.figure.style.opacity = '0.8';
         
-        // Отправляем аналитику
         if (window.appState) {
             window.appState.sendAnalytics('practice_start', {
                 type: this.practiceTypes[this.currentPracticeIndex].name,
@@ -169,6 +163,12 @@ class BreathingPractice {
         this.stopBreathingAnimation();
         this.stopTimer();
         this.actionButtons.classList.remove('hidden');
+        
+        // Текст подсказок исчезает
+        this.phaseName.style.transition = 'opacity 0.2s ease';
+        this.phaseInstruction.style.transition = 'opacity 0.2s ease';
+        this.phaseName.style.opacity = '0';
+        this.phaseInstruction.style.opacity = '0';
     }
     
     resumePractice() {
@@ -177,6 +177,10 @@ class BreathingPractice {
         this.startBreathingAnimation();
         this.startTimer();
         this.actionButtons.classList.add('hidden');
+        
+        // Текст подсказок возвращается
+        this.phaseName.style.opacity = '1';
+        this.phaseInstruction.style.opacity = '1';
     }
     
     stopPractice() {
@@ -224,9 +228,7 @@ class BreathingPractice {
             });
         }
         
-        // Переход на следующую практику для следующего раза
         this.nextPractice();
-        
         window.location.href = 'reflection.html';
     }
     
@@ -242,6 +244,7 @@ class BreathingPractice {
         }
     }
     
+    // СУПЕР-ПЛАВНАЯ АНИМАЦИЯ
     animate() {
         if (!this.isActive || this.isPaused) return;
         
@@ -249,7 +252,6 @@ class BreathingPractice {
         const elapsed = (now - this.cycleStartTime) / 1000;
         const cycleProgress = elapsed % this.cycleDuration;
         
-        // Находим текущую фазу
         let accumulated = 0;
         let currentPhase = null;
         let phaseProgress = 0;
@@ -264,26 +266,32 @@ class BreathingPractice {
         }
         
         if (currentPhase) {
-            // Плавное обновление текста (без скачков)
+            // Плавная смена текста
             this.updatePhaseText(currentPhase.name, currentPhase.instruction);
             
-            // Плавное изменение масштаба
-            let targetScale = this.currentScale;
-            
+            // СУПЕР ПЛАВНАЯ КРИВАЯ — smoothstep
+            let smoothProgress = phaseProgress;
             if (currentPhase.action === 'expand') {
-                // easeOutCubic для плавного замедления в конце вдоха
-                const easeOut = 1 - Math.pow(1 - phaseProgress, 1.5);
-                targetScale = this.minScale + (this.maxScale - this.minScale) * easeOut;
+                // easeOutCubic — плавное замедление в конце
+                const t = 1 - phaseProgress;
+                smoothProgress = 1 - t * t * t;
             } else if (currentPhase.action === 'contract') {
-                // easeInCubic для плавного начала выдоха
-                const easeIn = Math.pow(phaseProgress, 1.5);
-                targetScale = this.maxScale - (this.maxScale - this.minScale) * easeIn;
+                // easeInCubic — плавное ускорение в начале
+                smoothProgress = phaseProgress * phaseProgress * phaseProgress;
+            }
+            
+            let targetScale;
+            if (currentPhase.action === 'expand') {
+                targetScale = this.minScale + (this.maxScale - this.minScale) * smoothProgress;
+            } else if (currentPhase.action === 'contract') {
+                targetScale = this.maxScale - (this.maxScale - this.minScale) * smoothProgress;
             } else {
-                // hold — плавно держим
                 targetScale = currentPhase.name === 'Вдох' ? this.maxScale : this.minScale;
             }
             
-            this.currentScale = targetScale;
+            // Сглаживание (low-pass filter) — убирает рывки
+            this.currentScale = this.currentScale * 0.92 + targetScale * 0.08;
+            
             this.updateFigure();
         }
         
@@ -292,25 +300,23 @@ class BreathingPractice {
     
     updateFigure() {
         // Вертикальный овал
-        const scaleX = this.currentScale * 0.7;
-        const scaleY = this.currentScale * 1.3;
+        const scaleX = this.currentScale * 0.75;
+        const scaleY = this.currentScale * 1.25;
         this.figure.style.transform = `scale(${scaleX}, ${scaleY})`;
         
-        // Плавное изменение прозрачности и свечения
-        const opacity = 0.4 + (this.currentScale - this.minScale) / (this.maxScale - this.minScale) * 0.4;
+        // Плавное изменение прозрачности
+        const opacity = 0.45 + (this.currentScale - this.minScale) / (this.maxScale - this.minScale) * 0.4;
         this.figure.style.opacity = opacity;
         
-        // Изменение blur для эффекта дыхания
-        const blurAmount = 20 + (1 - this.currentScale) * 20;
+        // Изменение размытия
+        const blurAmount = 22 + (1 - this.currentScale) * 18;
         this.figure.style.filter = `blur(${blurAmount}px)`;
     }
     
     updatePhaseText(name, instruction) {
-        // Плавная смена текста без скачков
         if (this.phaseName.textContent !== name) {
-            // Анимация исчезновения
-            this.phaseName.style.transition = 'opacity 0.15s ease, transform 0.2s ease';
-            this.phaseInstruction.style.transition = 'opacity 0.15s ease 0.05s, transform 0.2s ease';
+            this.phaseName.style.transition = 'opacity 0.2s ease, transform 0.25s ease';
+            this.phaseInstruction.style.transition = 'opacity 0.2s ease 0.05s, transform 0.25s ease';
             
             this.phaseName.style.opacity = '0';
             this.phaseInstruction.style.opacity = '0';
