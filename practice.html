@@ -14,9 +14,9 @@
         <!-- Заголовок -->
         <div class="practice-headline">Практика осознанности</div>
         
-        <!-- Дышащая фигура -->
+        <!-- Canvas для фигуры (вместо CSS) -->
         <div class="figure-container">
-            <div id="breathingFigure" class="breathing-figure"></div>
+            <canvas id="breathingCanvas" width="300" height="300"></canvas>
         </div>
         
         <!-- Крупная кнопка PLAY/PAUSE -->
@@ -33,7 +33,7 @@
             <div id="phaseInstruction" class="phase-instruction">почувствуй тело</div>
         </div>
         
-        <!-- Кнопки управления (пауза) -->
+        <!-- Кнопки управления -->
         <div id="actionButtons" class="action-buttons hidden">
             <button id="cancelBtn" class="action-circle cancel-btn">Отмена</button>
             <button id="finishActionBtn" class="action-circle finish-btn">Финиш</button>
@@ -43,6 +43,6 @@
     
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
-    <script src="js/breathing-final.js"></script>
+    <script src="js/breathing-canvas.js"></script>
 </body>
 </html>
