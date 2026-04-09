@@ -61,6 +61,17 @@ class BreathingPractice {
         this.figureNaturalSize = 346;
         this.figureObjectUrl = null;
 
+        this.cssW = 0;
+        this.cssH = 0;
+        this.dpr = 1;
+
+        this.figureCache = null;
+        this.figureCacheCtx = null;
+        this.figureCacheCore = null;
+        this.figureCacheCoreCtx = null;
+        this.figureCacheDpr = 1;
+        this.figureCacheSize = 0;
+
         this.phaseNameAnim = null;
         this.phaseInstructionAnim = null;
         this.lastPhaseKey = null;
@@ -99,6 +110,10 @@ class BreathingPractice {
         const cssW = Math.max(1, Math.round(rect.width));
         const cssH = Math.max(1, Math.round(rect.height));
 
+        this.cssW = cssW;
+        this.cssH = cssH;
+        this.dpr = dpr;
+
         const targetW = Math.round(cssW * dpr);
         const targetH = Math.round(cssH * dpr);
         if (this.canvas.width !== targetW || this.canvas.height !== targetH) {
@@ -109,6 +124,81 @@ class BreathingPractice {
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this.centerX = cssW / 2;
         this.centerY = cssH / 2;
+
+        this.ensureFigureCache();
+    }
+
+    ensureFigureCache() {
+        if (!this.figureReady || !this.figureImg) return;
+
+        const baseSize = Math.min(this.centerX, this.centerY) * 2 * 1.10;
+        const maxGlow = 44;
+        const pad = Math.ceil(maxGlow * 1.25);
+        const cacheSize = Math.max(1, Math.ceil(baseSize) + pad * 2);
+
+        const cacheDpr = Math.max(1, Math.min(2, this.dpr || 1));
+        if (
+            this.figureCache &&
+            this.figureCacheCore &&
+            this.figureCacheSize === cacheSize &&
+            this.figureCacheDpr === cacheDpr
+        ) {
+            return;
+        }
+
+        this.figureCacheSize = cacheSize;
+        this.figureCacheDpr = cacheDpr;
+
+        this.figureCache = document.createElement('canvas');
+        this.figureCache.width = Math.round(cacheSize * cacheDpr);
+        this.figureCache.height = Math.round(cacheSize * cacheDpr);
+        this.figureCacheCtx = this.figureCache.getContext('2d');
+
+        this.figureCacheCore = document.createElement('canvas');
+        this.figureCacheCore.width = Math.round(cacheSize * cacheDpr);
+        this.figureCacheCore.height = Math.round(cacheSize * cacheDpr);
+        this.figureCacheCoreCtx = this.figureCacheCore.getContext('2d');
+
+        if (!this.figureCacheCtx || !this.figureCacheCoreCtx) return;
+
+        const ctxGlow = this.figureCacheCtx;
+        const ctxCore = this.figureCacheCoreCtx;
+        ctxGlow.setTransform(cacheDpr, 0, 0, cacheDpr, 0, 0);
+        ctxCore.setTransform(cacheDpr, 0, 0, cacheDpr, 0, 0);
+
+        ctxGlow.clearRect(0, 0, cacheSize, cacheSize);
+        ctxCore.clearRect(0, 0, cacheSize, cacheSize);
+
+        const cx = cacheSize / 2;
+        const cy = cacheSize / 2;
+        const drawW = Math.ceil(baseSize);
+        const drawH = Math.ceil(baseSize);
+        const x = cx - drawW / 2;
+        const y = cy - drawH / 2;
+
+        // Pre-render expensive glow ONCE. Per-frame we only scale + blend.
+        ctxGlow.save();
+        ctxGlow.globalCompositeOperation = 'lighter';
+        ctxGlow.globalAlpha = 1;
+        ctxGlow.shadowBlur = maxGlow;
+        ctxGlow.shadowColor = 'rgba(242, 234, 222, 0.42)';
+        ctxGlow.drawImage(this.figureImg, x, y, drawW, drawH);
+        ctxGlow.restore();
+
+        ctxGlow.save();
+        ctxGlow.globalCompositeOperation = 'source-over';
+        ctxGlow.globalAlpha = 1;
+        ctxGlow.shadowBlur = 16;
+        ctxGlow.shadowColor = 'rgba(255, 255, 255, 0.16)';
+        ctxGlow.drawImage(this.figureImg, x, y, drawW, drawH);
+        ctxGlow.restore();
+
+        ctxCore.save();
+        ctxCore.globalCompositeOperation = 'source-over';
+        ctxCore.globalAlpha = 1;
+        ctxCore.shadowBlur = 0;
+        ctxCore.drawImage(this.figureImg, x, y, drawW, drawH);
+        ctxCore.restore();
     }
     
     loadFigure() {
@@ -130,13 +220,16 @@ class BreathingPractice {
                 this.figureImg.decoding = 'async';
                 this.figureImg.onload = () => {
                     this.figureReady = true;
+
                     const w = this.figureImg?.naturalWidth;
                     const h = this.figureImg?.naturalHeight;
                     if (typeof w === 'number' && typeof h === 'number' && w > 0 && h > 0) {
                         this.figureNaturalSize = Math.max(w, h);
                     }
+                    this.ensureFigureCache();
                     this.draw();
                 };
+
                 this.figureImg.onerror = () => {
                     this.figureReady = false;
                     this.draw();
@@ -418,7 +511,9 @@ class BreathingPractice {
     draw() {
         if (!this.ctx) return;
 
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        const w = this.cssW || this.canvas.width;
+        const h = this.cssH || this.canvas.height;
+        this.ctx.clearRect(0, 0, w, h);
 
         const minScale = 0.78;
         const maxScale = 1.24;
@@ -428,46 +523,48 @@ class BreathingPractice {
         const ease = (t) => t * t * (3 - 2 * t);
         const k = minScale + (maxScale - minScale) * ease(p);
 
-        const glowOuter = 22 + this.glowIntensity * 18;
-        const pad = Math.max(34, Math.ceil(glowOuter * 1.15));
+        const maxGlow = 44;
+        const pad = Math.max(34, Math.ceil(maxGlow * 1.25));
         const baseSize = Math.min(this.centerX, this.centerY) * 2 * 1.10;
 
         const safeSize = Math.max(1, baseSize - pad * 2);
         const targetSize = safeSize * k;
         const drawW = targetSize;
         const drawH = targetSize;
-        const x = this.centerX - drawW / 2;
-        const y = this.centerY - drawH / 2;
+        const snap = (v) => Math.round(v * 2) / 2;
+        const x = snap(this.centerX - drawW / 2);
+        const y = snap(this.centerY - drawH / 2);
+        const dw = snap(drawW);
+        const dh = snap(drawH);
 
         if (!this.figureReady || !this.figureImg) {
             this.drawProcedural(targetSize, 1);
             return;
         }
 
-        // Outer glow (shadowBlur works in more WebViews than ctx.filter)
+        this.ensureFigureCache();
+        if (!this.figureCache || !this.figureCacheCore) {
+            this.drawProcedural(targetSize, 1);
+            return;
+        }
+
+        // High quality resampling where available
+        this.ctx.imageSmoothingEnabled = true;
+        this.ctx.imageSmoothingQuality = 'high';
+
+        const glowA = 0.20 + this.glowIntensity * 0.22;
+        const coreA = 0.10 + this.glowIntensity * 0.10;
+
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.globalAlpha = 0.22 + this.glowIntensity * 0.16;
-        this.ctx.shadowBlur = glowOuter;
-        this.ctx.shadowColor = `rgba(242, 234, 222, ${0.26 + this.glowIntensity * 0.16})`;
-        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
+        this.ctx.globalAlpha = glowA;
+        this.ctx.drawImage(this.figureCache, x, y, dw, dh);
         this.ctx.restore();
 
-        // Mid body
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.18 + this.glowIntensity * 0.12;
-        this.ctx.shadowBlur = 10 + this.glowIntensity * 8;
-        this.ctx.shadowColor = `rgba(255, 255, 255, ${0.10 + this.glowIntensity * 0.08})`;
-        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
-        this.ctx.restore();
-
-        // Crisp core
-        this.ctx.save();
-        this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.10 + this.glowIntensity * 0.08;
-        this.ctx.shadowBlur = 0;
-        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
+        this.ctx.globalAlpha = coreA;
+        this.ctx.drawImage(this.figureCacheCore, x, y, dw, dh);
         this.ctx.restore();
     }
     
