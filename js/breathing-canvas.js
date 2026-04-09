@@ -319,37 +319,57 @@ class BreathingPractice {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Внешнее свечение
-        this.ctx.shadowBlur = 40;
-        this.ctx.shadowColor = `rgba(210, 190, 160, ${this.glowIntensity * 0.6})`;
-        
-        // Основная фигура (вертикальный овал)
-        const radiusX = this.currentRadius;
-        const radiusY = this.currentRadius * 1.35;
-        
-        // Градиент для объёма
-        const gradient = this.ctx.createRadialGradient(
-            this.centerX - 10, this.centerY - 10, 10,
-            this.centerX, this.centerY, this.currentRadius
-        );
-        gradient.addColorStop(0, `rgba(230, 210, 180, ${0.3 + this.glowIntensity * 0.3})`);
-        gradient.addColorStop(0.5, `rgba(200, 175, 145, ${0.15 + this.glowIntensity * 0.15})`);
-        gradient.addColorStop(1, `rgba(170, 145, 115, 0)`);
-        
+        const base = this.currentRadius;
+        const petalR = base * 0.9;
+        const offset = base * 0.55;
+        const petalY = petalR * 1.25;
+        const petalX = petalR * 1.05;
+
+        const outerA = 0.18 + this.glowIntensity * 0.22;
+        const innerA = 0.10 + this.glowIntensity * 0.18;
+
+        const petalGradientAt = (cx, cy, r) => {
+            const g = this.ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, r * 0.08, cx, cy, r);
+            g.addColorStop(0, `rgba(242, 234, 222, ${outerA})`);
+            g.addColorStop(0.55, `rgba(214, 197, 170, ${outerA * 0.55})`);
+            g.addColorStop(1, 'rgba(214, 197, 170, 0)');
+            return g;
+        };
+
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'lighter';
+        this.ctx.filter = 'blur(18px)';
+
+        const petals = [
+            { x: this.centerX, y: this.centerY - offset, rx: petalX, ry: petalY },
+            { x: this.centerX, y: this.centerY + offset, rx: petalX, ry: petalY },
+            { x: this.centerX - offset, y: this.centerY, rx: petalY, ry: petalX },
+            { x: this.centerX + offset, y: this.centerY, rx: petalY, ry: petalX }
+        ];
+
+        for (const p of petals) {
+            this.ctx.beginPath();
+            this.ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, 0, Math.PI * 2);
+            this.ctx.fillStyle = petalGradientAt(p.x, p.y, Math.max(p.rx, p.ry));
+            this.ctx.fill();
+        }
+
+        this.ctx.filter = 'blur(10px)';
         this.ctx.beginPath();
-        this.ctx.ellipse(this.centerX, this.centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
-        this.ctx.fillStyle = gradient;
+        this.ctx.ellipse(this.centerX, this.centerY, base * 0.62, base * 0.62, 0, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(242, 234, 222, ${innerA})`;
         this.ctx.fill();
-        
-        // Внутреннее свечение
-        this.ctx.shadowBlur = 20;
+
+        this.ctx.restore();
+
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'screen';
+        this.ctx.filter = 'blur(2px)';
         this.ctx.beginPath();
-        this.ctx.ellipse(this.centerX, this.centerY, radiusX * 0.6, radiusY * 0.6, 0, 0, Math.PI * 2);
-        this.ctx.fillStyle = `rgba(245, 230, 200, ${0.1 + this.glowIntensity * 0.15})`;
+        this.ctx.ellipse(this.centerX, this.centerY, base * 0.28, base * 0.28, 0, 0, Math.PI * 2);
+        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.04 + this.glowIntensity * 0.06})`;
         this.ctx.fill();
-        
-        // Сброс тени
-        this.ctx.shadowBlur = 0;
+        this.ctx.restore();
     }
     
     updatePhaseText(name, instruction) {
