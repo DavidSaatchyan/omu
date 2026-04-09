@@ -391,9 +391,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 28px;
-    width: 300px;
-    height: 300px;
+    margin-bottom: 14px;
+    width: 340px;
+    height: 340px;
 }
 
 .breathing-figure {
@@ -426,6 +426,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
+    margin-top: -6px;
     margin-bottom: 18px;
 }
 
@@ -515,8 +516,8 @@
 
 .cancel-btn {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: rgba(255, 255, 255, 0.6);
+    border: 1.5px solid rgba(255, 255, 255, 0.44);
+    color: rgba(255, 255, 255, 0.68);
 }
 
 .finish-btn {
@@ -874,12 +875,12 @@ button, a, .clickable {
 
 .practice-screen .figure-container {
     margin: 0 0 40px;
-    width: 300px;
-    height: 300px;
+    width: 340px;
+    height: 340px;
 }
 
 .practice-screen #breathingCanvas {
-    width: 300px;
-    height: 300px;
+    width: 340px;
+    height: 340px;
     display: block;
 }
