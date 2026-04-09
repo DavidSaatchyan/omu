@@ -1,0 +1,245 @@
+﻿:root {
+    --bg: #f5f0e8;
+    --text: #2c2c2c;
+    --accent: #8b7b6b;
+    --soft-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Georgia', serif;
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+/* Экран входа */
+.entry-screen .container {
+    text-align: center;
+    animation: fadeIn 1.5s ease;
+}
+
+.soft-text {
+    font-size: 24px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
+    line-height: 1.4;
+    margin-bottom: 12px;
+}
+
+.soft-text.small {
+    font-size: 16px;
+    opacity: 0.7;
+}
+
+.omu-button {
+    background: none;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    padding: 12px 32px;
+    font-size: 18px;
+    border-radius: 40px;
+    margin-top: 48px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.omu-button:hover {
+    background: var(--accent);
+    color: white;
+}
+
+/* Экран практики */
+.timer-display {
+    font-size: 64px;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.timer-progress {
+    width: 80%;
+    height: 2px;
+    background: rgba(0,0,0,0.1);
+    margin: 20px auto;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 1s linear;
+}
+
+.instruction {
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.6;
+    margin-top: 32px;
+}
+
+.interrupt-button {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: none;
+    color: rgba(0,0,0,0.3);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Рефлексия */
+.reflection-question {
+    font-size: 28px;
+    font-weight: 300;
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.options {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.reflection-option {
+    background: none;
+    border: 1px solid var(--accent);
+    padding: 8px 20px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.free-input {
+    width: 100%;
+    padding: 16px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: white;
+    border-radius: 16px;
+    font-family: inherit;
+    resize: vertical;
+    margin-bottom: 24px;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.finish-screen .stats {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 40px 0;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    display: block;
+    font-size: 48px;
+    font-weight: 300;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.6;
+}
+
+.finish-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 40px;
+}
+
+.omu-button.secondary {
+    background: none;
+    border-color: rgba(0,0,0,0.2);
+    color: var(--text);
+    opacity: 0.7;
+}
+
+/* support.html */
+.support-message {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.donation-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.donation-btn {
+    background: white;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 16px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.donation-btn:hover {
+    border-color: var(--accent);
+    transform: scale(1.02);
+}
+
+.stars-count {
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.stars-label {
+    font-size: 14px;
+    opacity: 0.6;
+    margin-left: 8px;
+}
+
+.price {
+    font-size: 14px;
+    opacity: 0.5;
+}
+
+/* reflection.html активные кнопки */
+.reflection-option.active {
+    background: var(--accent);
+    color: white;
+}
+
+.small-text {
+    font-size: 12px;
+    opacity: 0.5;
+    text-align: center;
+    margin-top: 24px;
+}
+
+.instruction.small {
+    font-size: 12px;
+    margin-top: 8px;
+}

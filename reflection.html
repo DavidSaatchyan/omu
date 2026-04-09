@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Omu — Рефлексия</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="reflection-screen">
+    <div class="container">
+        <h2 class="reflection-question">Как ты себя чувствуешь?</h2>
+        
+        <div class="options">
+            <button class="reflection-option" data-value="quiet">Спокойствие</button>
+            <button class="reflection-option" data-value="present">Присутствие</button>
+            <button class="reflection-option" data-value="nothing">Никак</button>
+        </div>
+        
+        <textarea id="freeText" placeholder="Или напиши что-то своё..." class="free-input" rows="3"></textarea>
+        
+        <button id="submitReflection" class="omu-button">Готово</button>
+    </div>
+    
+    <script src="js/telegram.js"></script>
+    <script src="js/state.js"></script>
+    <script>
+        // Переменная для хранения выбранного ответа
+        let selectedAnswer = '';
+        
+        // Обработчики для кнопок-вариантов
+        document.querySelectorAll('.reflection-option').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Убираем активный класс у всех кнопок
+                document.querySelectorAll('.reflection-option').forEach(b => 
+                    b.classList.remove('active'));
+                
+                // Добавляем активный класс нажатой кнопке
+                btn.classList.add('active');
+                
+                // Сохраняем выбранный ответ
+                selectedAnswer = btn.textContent;
+                
+                // Очищаем текстовое поле, если оно было заполнено
+                document.getElementById('freeText').value = '';
+            });
+        });
+        
+        // Обработчик для текстового поля
+        const freeTextInput = document.getElementById('freeText');
+        freeTextInput.addEventListener('input', () => {
+            if(freeTextInput.value.trim() !== '') {
+                // Если пользователь пишет свой ответ, убираем выделение с кнопок
+                document.querySelectorAll('.reflection-option').forEach(b => 
+                    b.classList.remove('active'));
+                selectedAnswer = '';
+            }
+        });
+        
+        // Отправка рефлексии
+        document.getElementById('submitReflection').addEventListener('click', () => {
+            let reflection = '';
+            let reflectionType = '';
+            
+            // Проверяем, что выбрано: кнопка или текст
+            if(selectedAnswer) {
+                reflection = selectedAnswer;
+                reflectionType = 'preset';
+            } else if(freeTextInput.value.trim() !== '') {
+                reflection = freeTextInput.value.trim();
+                reflectionType = 'custom';
+            } else {
+                // Если ничего не выбрано, показываем напоминание
+                if(window.Telegram?.WebApp) {
+                    window.Telegram.WebApp.showAlert('Выбери вариант или напиши что-то о своём состоянии');
+                } else {
+                    alert('Выбери вариант или напиши что-то о своём состоянии');
+                }
+                return;
+            }
+            
+            // Сохраняем рефлексию и отправляем аналитику
+            if(window.appState) {
+                window.appState.sendAnalytics('reflection', { 
+                    answer: reflection,
+                    answer_type: reflectionType,
+                    timestamp: Date.now()
+                });
+                
+                // Сохраняем локально для истории (опционально)
+                const reflections = JSON.parse(localStorage.getItem('omu_reflections') || '[]');
+                reflections.push({
+                    answer: reflection,
+                    type: reflectionType,
+                    date: new Date().toISOString()
+                });
+                // Храним только последние 10 рефлексий
+                if(reflections.length > 10) reflections.shift();
+                localStorage.setItem('omu_reflections', JSON.stringify(reflections));
+            }
+            
+            // Переход на экран фиксации
+            window.location.href = 'finish.html';
+        });
+        
+        // Добавляем поддержку Enter в текстовом поле (Ctrl+Enter для отправки)
+        freeTextInput.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                document.getElementById('submitReflection').click();
+            }
+        });
+        
+        // Анимация появления
+        document.querySelector('.container').style.animation = 'fadeIn 0.5s ease';
+    </script>
+</body>
+</html>

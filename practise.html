@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Omu — Практика</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="practice-screen">
+    <div class="timer-container">
+        <div id="timer" class="timer-display">5:00</div>
+        <div class="timer-progress">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <p class="instruction">Просто дыши.</p>
+        <p class="instruction small">Ты в безопасности</p>
+    </div>
+
+    <button id="interruptBtn" class="interrupt-button">Прервать</button>
+
+    <script src="js/telegram.js"></script>
+    <script src="js/state.js"></script>
+    <script src="js/timer.js"></script>
+    <script>
+        // Длительность: 5 минут (можно изменить на 3-10)
+        const duration = 5 * 60; // 300 секунд
+        
+        // Отправляем аналитику старта
+        if(window.appState) {
+            window.appState.sendAnalytics('practice_start', { duration: duration / 60 });
+        }
+        
+        // Создаём и запускаем таймер
+        const timer = new Timer(duration, {
+            onTick: (remaining) => {
+                // Можно добавить дополнительную логику при каждом тике
+                // Например, вибрацию на последних 10 секундах
+                if(remaining <= 10 && remaining > 0) {
+                    // Лёгкая вибрация если поддерживается
+                    if(window.Telegram?.WebApp?.HapticFeedback) {
+                        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+                    }
+                }
+            },
+            onComplete: () => {
+                // Переход на рефлексию
+                window.location.href = 'reflection.html';
+            }
+        });
+        
+        // Обработчик прерывания
+        document.getElementById('interruptBtn').addEventListener('click', () => {
+            if(confirm('Прервать практику?')) {
+                // Отправляем аналитику прерывания
+                if(window.appState) {
+                    window.appState.sendAnalytics('practice_interrupted', { 
+                        duration_remaining: timer.remaining 
+                    });
+                }
+                window.location.href = 'index.html';
+            }
+        });
+        
+        // Блокируем скролл на время практики
+        document.body.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>

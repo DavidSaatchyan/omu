@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Omu — Фиксация</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="finish-screen">
+    <div class="container">
+        <div class="fixation-card">
+            <p class="soft-text">Ты был здесь</p>
+            
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-value" id="daysCount">0</span>
+                    <span class="stat-label">дней присутствия</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="minutesCount">0</span>
+                    <span class="stat-label">минут тишины</span>
+                </div>
+            </div>
+            
+            <p class="small-text">Без сравнений. Без оценок. Просто путь.</p>
+        </div>
+        
+        <div class="finish-buttons">
+            <button id="supportBtn" class="omu-button secondary">Поддержать проект</button>
+            <button id="homeBtn" class="omu-button">Завтра</button>
+        </div>
+    </div>
+
+    <script src="js/telegram.js"></script>
+    <script src="js/state.js"></script>
+    <script>
+        // Загружаем статистику
+        const state = new AppState();
+        const stats = state.getStats();
+        
+        document.getElementById('daysCount').textContent = stats.days;
+        document.getElementById('minutesCount').textContent = stats.minutes;
+        
+        document.getElementById('supportBtn').addEventListener('click', () => {
+            window.location.href = 'support.html';
+        });
+        
+        document.getElementById('homeBtn').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

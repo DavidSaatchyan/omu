@@ -1,0 +1,68 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Поддержать Omu</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="support-screen">
+    <div class="container">
+        <div class="support-message">
+            <p class="soft-text">Ты поддерживаешь,</p>
+            <p class="soft-text">а не покупаешь</p>
+        </div>
+        
+        <div class="donation-options">
+            <button class="donation-btn" data-stars="50">
+                <span class="stars-count">50</span>
+                <span class="stars-label">Telegram Stars</span>
+                <span class="price">~0.75$</span>
+            </button>
+            
+            <button class="donation-btn" data-stars="100">
+                <span class="stars-count">100</span>
+                <span class="stars-label">Telegram Stars</span>
+                <span class="price">~1.5$</span>
+            </button>
+            
+            <button class="donation-btn" data-stars="250">
+                <span class="stars-count">250</span>
+                <span class="stars-label">Telegram Stars</span>
+                <span class="price">~3.75$</span>
+            </button>
+            
+            <button class="donation-btn" data-stars="500">
+                <span class="stars-count">500</span>
+                <span class="stars-label">Telegram Stars</span>
+                <span class="price">~7.5$</span>
+            </button>
+        </div>
+        
+        <button id="backBtn" class="omu-button secondary">Вернуться</button>
+    </div>
+
+    <script src="js/telegram.js"></script>
+    <script>
+        const tg = window.Telegram.WebApp;
+        
+        document.querySelectorAll('.donation-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const stars = parseInt(btn.dataset.stars);
+                
+                // Для Telegram Stars нужен backend
+                // Пока показываем тестовое сообщение
+                tg.showAlert(`Спасибо за желание поддержать! ❤️\n\n${stars} Stars — это поможет проекту жить.`);
+                
+                // TODO: Интеграция с @donate или Telegram Stars API
+                // tg.openInvoice(...)
+            });
+        });
+        
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'finish.html';
+        });
+    </script>
+</body>
+</html>
