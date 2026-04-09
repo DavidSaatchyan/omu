@@ -23,6 +23,7 @@ class BreathingPractice {
         this.timerInterval = null;
         this.animationId = null;
         this.cycleStartTime = null;
+        this.lastFrameTime = null;
         
         // Практики
         this.practiceTypes = [
@@ -48,8 +49,8 @@ class BreathingPractice {
         this.minRadius = 40;
         this.maxRadius = 120;
         this.currentRadius = this.minRadius;
-        this.centerX = this.canvas.width / 2;
-        this.centerY = this.canvas.height / 2;
+        this.centerX = 0;
+        this.centerY = 0;
         
         // Glow эффект
         this.glowIntensity = 0.3;
@@ -65,8 +66,38 @@ class BreathingPractice {
         }
         
         this.setupEventListeners();
+        this.setupCanvas();
         this.resetUI();
         this.draw(); // начальная отрисовка
+
+        window.addEventListener('resize', () => {
+            this.setupCanvas();
+            this.draw();
+            if (this.isActive) {
+                this.stopAnimation();
+                this.startAnimation();
+            }
+        });
+    }
+
+    setupCanvas() {
+        if (!this.canvas || !this.ctx) return;
+
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        const rect = this.canvas.getBoundingClientRect();
+        const cssW = Math.max(1, Math.round(rect.width));
+        const cssH = Math.max(1, Math.round(rect.height));
+
+        const targetW = Math.round(cssW * dpr);
+        const targetH = Math.round(cssH * dpr);
+        if (this.canvas.width !== targetW || this.canvas.height !== targetH) {
+            this.canvas.width = targetW;
+            this.canvas.height = targetH;
+        }
+
+        this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        this.centerX = cssW / 2;
+        this.centerY = cssH / 2;
     }
     
     setPractice(index) {
@@ -154,6 +185,7 @@ class BreathingPractice {
         this.phaseName.style.opacity = '1';
         this.phaseInstruction.style.opacity = '1';
         this.cycleStartTime = performance.now() - this.getCurrentCycleProgress() * 1000;
+        this.startAnimation();
     }
     
     stopPractice() {
@@ -162,7 +194,9 @@ class BreathingPractice {
         this.stopTimer();
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
+            this.animationId = null;
         }
+        this.lastFrameTime = null;
     }
     
     startTimer() {
@@ -200,8 +234,19 @@ class BreathingPractice {
     }
     
     startAnimation() {
+        if (this.animationId) return;
+        this.setupCanvas();
+        this.lastFrameTime = null;
         this.cycleStartTime = performance.now();
-        this.animate();
+        this.animationId = requestAnimationFrame((t) => this.animate(t));
+    }
+
+    stopAnimation() {
+        if (this.animationId) {
+            cancelAnimationFrame(this.animationId);
+            this.animationId = null;
+        }
+        this.lastFrameTime = null;
     }
     
     getCurrentCycleProgress() {
@@ -209,14 +254,17 @@ class BreathingPractice {
         return ((performance.now() - this.cycleStartTime) / 1000) % this.cycleDuration;
     }
     
-    animate() {
+    animate(now) {
         if (!this.isActive || this.isPaused) {
+            this.animationId = null;
             this.draw();
-            this.animationId = requestAnimationFrame(() => this.animate());
             return;
         }
-        
-        const now = performance.now();
+
+        if (!this.lastFrameTime) this.lastFrameTime = now;
+        const dt = Math.min(0.05, (now - this.lastFrameTime) / 1000);
+        this.lastFrameTime = now;
+
         const elapsed = (now - this.cycleStartTime) / 1000;
         const cycleProgress = elapsed % this.cycleDuration;
         
@@ -236,13 +284,9 @@ class BreathingPractice {
         if (currentPhase) {
             this.updatePhaseText(currentPhase.name, currentPhase.instruction);
             
-            // Супер-плавная кривая
-            let smoothProgress = phaseProgress;
-            if (currentPhase.action === 'expand') {
-                smoothProgress = 1 - Math.pow(1 - phaseProgress, 2.5);
-            } else if (currentPhase.action === 'contract') {
-                smoothProgress = Math.pow(phaseProgress, 2);
-            }
+            // Супер-плавная кривая (единая для вдоха/выдоха)
+            const easeInOut = (p) => 0.5 - 0.5 * Math.cos(Math.PI * p);
+            const smoothProgress = easeInOut(Math.min(1, Math.max(0, phaseProgress)));
             
             let targetRadius;
             if (currentPhase.action === 'expand') {
@@ -250,20 +294,28 @@ class BreathingPractice {
             } else if (currentPhase.action === 'contract') {
                 targetRadius = this.maxRadius - (this.maxRadius - this.minRadius) * smoothProgress;
             } else {
-                targetRadius = currentPhase.name === 'Вдох' ? this.maxRadius : this.minRadius;
+                // hold: фиксируем на границе (после вдоха держим max, после выдоха держим min)
+                targetRadius = cycleProgress < this.currentPhases[0].duration ? this.minRadius : this.currentRadius;
+                if (cycleProgress >= this.currentPhases[0].duration && cycleProgress < this.currentPhases[0].duration + this.currentPhases[1].duration) {
+                    targetRadius = this.maxRadius;
+                }
             }
             
-            // Сглаживание
-            this.currentRadius = this.currentRadius * 0.94 + targetRadius * 0.06;
+            // Сглаживание, независимое от FPS
+            const tau = 0.18;
+            const a = 1 - Math.exp(-dt / tau);
+            this.currentRadius = this.currentRadius + (targetRadius - this.currentRadius) * a;
             this.glowIntensity = 0.25 + (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius) * 0.35;
         }
         
         this.draw();
-        this.animationId = requestAnimationFrame(() => this.animate());
+        this.animationId = requestAnimationFrame((t) => this.animate(t));
     }
     
     draw() {
         if (!this.ctx) return;
+
+        this.setupCanvas();
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
