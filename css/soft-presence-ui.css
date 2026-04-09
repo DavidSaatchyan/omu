@@ -214,10 +214,10 @@
     z-index: 2;
 }
 
-/* ========== INTRO SCREEN (ТОЧНО ПО МАКЕТУ) ========== */
+/* ========== INTRO SCREEN ========== */
 
 .intro-screen {
-    background: linear-gradient(180deg, #1A1C20 0%, #0F1115 100%);
+    background: linear-gradient(145deg, #1E2A33 0%, #0F1820 100%);
     min-height: 100vh;
 }
 
@@ -228,89 +228,80 @@
     padding: 20px;
 }
 
-/* Верхняя панель */
-.intro-header {
+/* Логотип по центру сверху */
+.intro-logo {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-top: 44px;
-    padding-left: 8px;
-    padding-right: 8px;
+    justify-content: center;
+    padding-top: 60px;
+    margin-bottom: 80px;
 }
 
-.app-name {
-    font-family: 'Georgia', serif;
-    font-size: 15px;
-    font-weight: 350;
-    color: rgba(255, 255, 255, 0.5);
-    letter-spacing: 0.3px;
+.omu-logo-img {
+    width: 48px;
+    height: 48px;
+    opacity: 0.8;
 }
 
-.bot-badge {
-    font-family: 'Georgia', serif;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.3);
-}
-
-/* Центральный контент */
+/* Центральный контент — поднят выше */
 .intro-content {
-    flex: 1;
+    flex: 0 1 auto;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     text-align: center;
+    margin-top: 40px;
 }
 
-/* Крупный заголовок Omu: Break to Awake */
-.omu-logo {
-    margin-bottom: 32px;
+/* Уменьшенный основной текст */
+.omu-title {
+    margin-bottom: 24px;
 }
 
-.omu-large {
+.omu-small {
     display: block;
     font-family: 'Georgia', serif;
-    font-size: 52px;
+    font-size: 36px;
     font-weight: 330;
-    letter-spacing: -1px;
+    letter-spacing: -0.5px;
     color: rgba(255, 255, 255, 0.9);
     line-height: 1.2;
 }
 
-.break-large {
+.break-small {
     display: block;
     font-family: 'Georgia', serif;
-    font-size: 42px;
+    font-size: 28px;
     font-weight: 300;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
     color: rgba(255, 255, 255, 0.6);
-    line-height: 1.2;
+    line-height: 1.3;
 }
 
-/* "Ты здесь" */
-.you-are-here {
-    margin-top: 16px;
+/* "Ты здесь" — заметнее */
+.you-here {
+    margin-top: 8px;
 }
 
-.here-text {
+.here-medium {
     font-family: 'Georgia', serif;
-    font-size: 16px;
-    font-weight: 350;
-    color: rgba(255, 255, 255, 0.4);
-    letter-spacing: 2px;
+    font-size: 17px;
+    font-weight: 380;
+    color: rgba(255, 255, 255, 0.55);
+    letter-spacing: 3px;
     text-transform: uppercase;
 }
 
-/* Кнопка "Войти в тишину" */
+/* Кнопка */
 .intro-footer {
     padding-bottom: 60px;
     display: flex;
     justify-content: center;
+    margin-top: auto;
 }
 
 .enter-button {
     background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 40px;
     padding: 12px 32px;
     font-family: 'Georgia', serif;
@@ -322,14 +313,10 @@
     letter-spacing: 0.5px;
 }
 
-.enter-button:hover {
-    border-color: rgba(255, 255, 255, 0.45);
-    color: rgba(255, 255, 255, 0.9);
-}
-
 .enter-button:active {
     transform: scale(0.96);
 }
+
 /* ========== ЭКРАН ПРАКТИКИ ========== */
 
 /* Контейнер для дыхающей формы */
