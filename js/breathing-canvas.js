@@ -337,7 +337,7 @@ class BreathingPractice {
     resetUI() {
         this.isActive = false;
         this.isPaused = false;
-        this.playBtn.textContent = '▶';
+        this.playBtn.textContent = '▶\uFE0E';
         this.timerDisplay.textContent = '0:00';
         this.phaseName.textContent = 'Вдох';
         this.phaseInstruction.textContent = 'почувствуй тело';
@@ -350,7 +350,7 @@ class BreathingPractice {
         this.remainingSeconds = this.totalSeconds;
         this.isActive = true;
         this.isPaused = false;
-        this.playBtn.textContent = '⏸';
+        this.playBtn.textContent = '⏸\uFE0E';
         this.actionButtons.classList.add('hidden');
         
         this.updateTimerDisplay();
@@ -366,7 +366,7 @@ class BreathingPractice {
     
     pausePractice() {
         this.isPaused = true;
-        this.playBtn.textContent = '▶';
+        this.playBtn.textContent = '▶\uFE0E';
         this.stopTimer();
         this.actionButtons.classList.remove('hidden');
         this.phaseName.style.opacity = '0';
@@ -375,7 +375,7 @@ class BreathingPractice {
     
     resumePractice() {
         this.isPaused = false;
-        this.playBtn.textContent = '⏸';
+        this.playBtn.textContent = '⏸\uFE0E';
         this.startTimer();
         this.actionButtons.classList.add('hidden');
         this.phaseName.style.opacity = '1';
