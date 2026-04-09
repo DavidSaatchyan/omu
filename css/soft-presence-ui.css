@@ -363,7 +363,7 @@
     font-weight: 350;
     letter-spacing: 2px;
     color: rgba(255, 255, 255, 0.45);
-    margin-bottom: 60px;
+    margin-bottom: 48px;
 }
 
 /* Фигура */
@@ -371,9 +371,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 40px;
-    width: 280px;
-    height: 280px;
+    margin-bottom: 28px;
+    width: 300px;
+    height: 300px;
 }
 
 .breathing-figure {
@@ -406,7 +406,7 @@
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
 }
 
 .main-play-btn:active {
@@ -843,17 +843,14 @@ button, a, .clickable {
 }
 /* ========== CANVAS ДЛЯ ПРАКТИКИ ========== */
 
-.figure-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px 0;
-    width: 100%;
+.practice-screen .figure-container {
+    margin: 0 0 40px;
+    width: 300px;
+    height: 300px;
 }
 
-#breathingCanvas {
-    width: 280px;
-    height: 280px;
+.practice-screen #breathingCanvas {
+    width: 300px;
+    height: 300px;
     display: block;
-    margin: 0 auto;
 }
