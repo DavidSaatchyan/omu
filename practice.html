@@ -11,97 +11,42 @@
 <body class="practice-screen">
     <div class="practice-container">
         
-        <!-- Верхняя панель -->
-        <div class="practice-header">
-            <button id="backBtn" class="back-btn">← Back</button>
-            <div class="app-title">Omu: Brake to Awake</div>
-            <div class="bot-indicator">bot</div>
+        <!-- Заголовок сверху -->
+        <div class="practice-header-title">
+            <h1 class="practice-headline">Практика осознанности</h1>
         </div>
         
-        <!-- Таймер -->
-        <div class="timer-large" id="timerDisplay">0:44</div>
-        
-        <!-- Анимация дыхания -->
-        <div class="breathing-wrapper">
-            <div id="breathingShape" class="breathing-shape"></div>
+        <!-- Дышащая фигура (центр) -->
+        <div class="figure-wrapper">
+            <div id="breathingFigure" class="breathing-figure"></div>
         </div>
         
-        <!-- Текст фазы -->
-        <div id="phaseText" class="phase-text-guide">Вдох</div>
-        <div id="phaseInstruction" class="phase-instruction">почувствуй тело</div>
+        <!-- Крупная кнопка PLAY/PAUSE -->
+        <div class="play-wrapper">
+            <button id="playPauseBtn" class="play-circle">▶</button>
+        </div>
         
-        <!-- Кнопки управления -->
-        <div class="practice-controls">
-            <button id="cancelBtn" class="cancel-btn">Отмена</button>
-            <button id="playPauseBtn" class="play-pause-btn">⏸</button>
-            <button id="finishBtn" class="finish-btn hidden">Финиш</button>
+        <!-- Таймер (под кнопкой) -->
+        <div class="timer-wrapper">
+            <span id="timerDisplay" class="practice-timer">0:00</span>
+        </div>
+        
+        <!-- Текст подсказки (появляется) -->
+        <div class="hint-wrapper">
+            <div id="hintText" class="hint-text">Вдох</div>
+            <div id="hintSubtext" class="hint-subtext">почувствуй тело</div>
+        </div>
+        
+        <!-- Кнопки управления (появляются при паузе) -->
+        <div id="controlButtons" class="control-buttons hidden">
+            <button id="cancelCircle" class="control-circle cancel">Отмена</button>
+            <button id="finishCircle" class="control-circle finish">Финиш</button>
         </div>
         
     </div>
     
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
-    <script src="js/breathing-practice.js"></script>
-    <script>
-        // Настройки практики
-        const practiceDuration = 44; // секунд (0:44)
-        
-        // Инициализация дыхательной практики
-        const breathing = new BreathingPractice({
-            shapeElement: 'breathingShape',
-            phaseTextElement: 'phaseText',
-            instructionElement: 'phaseInstruction',
-            timerElement: 'timerDisplay',
-            duration: practiceDuration,
-            onComplete: () => {
-                // Переход на рефлексию
-                if(window.appState) {
-                    window.appState.addPractice(practiceDuration / 60);
-                }
-                window.location.href = 'reflection.html';
-            }
-        });
-        
-        // Кнопки
-        document.getElementById('backBtn').addEventListener('click', () => {
-            if(confirm('Прервать практику?')) {
-                breathing.stop();
-                window.location.href = 'index.html';
-            }
-        });
-        
-        document.getElementById('cancelBtn').addEventListener('click', () => {
-            if(confirm('Отменить практику?')) {
-                breathing.stop();
-                window.location.href = 'index.html';
-            }
-        });
-        
-        document.getElementById('playPauseBtn').addEventListener('click', () => {
-            const btn = document.getElementById('playPauseBtn');
-            const finishBtn = document.getElementById('finishBtn');
-            
-            if(breathing.isPlaying) {
-                breathing.pause();
-                btn.textContent = '▶';
-                finishBtn.classList.remove('hidden');
-            } else {
-                breathing.resume();
-                btn.textContent = '⏸';
-                finishBtn.classList.add('hidden');
-            }
-        });
-        
-        document.getElementById('finishBtn').addEventListener('click', () => {
-            if(confirm('Завершить практику?')) {
-                breathing.stop();
-                if(window.appState) {
-                    const elapsed = practiceDuration - breathing.remaining;
-                    window.appState.addPractice(elapsed / 60);
-                }
-                window.location.href = 'reflection.html';
-            }
-        });
-    </script>
+    <script src="js/breathing-core.js"></script>
 </body>
 </html>
