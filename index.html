@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -8,41 +8,48 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/soft-presence-ui.css">
 </head>
-<body class="entry-screen soft-ui">
-    <div class="container fade-gentle">
-        <!-- Текст чуть выше центра -->
-        <div class="entry-content">
-            <div class="gentle-setup breathing-center">
-                <p class="whisper-text entry-line">Пауза.</p>
-                <p class="whisper-text entry-line">Тишина внутри.</p>
+<body class="intro-screen">
+    <div class="intro-container">
+        <!-- Верхняя панель -->
+        <div class="intro-header">
+            <span class="app-name">Omu: Brake to Awake</span>
+            <span class="bot-badge">bot</span>
+        </div>
+        
+        <!-- Центральный контент -->
+        <div class="intro-content">
+            <div class="omu-logo">
+                <span class="omu-large">Omu:</span>
+                <span class="break-large">Break to Awake</span>
+            </div>
+            <div class="you-are-here">
+                <span class="here-text">Ты здесь</span>
             </div>
         </div>
         
-        <!-- Кнопка ниже центра, между ними пустота -->
-        <div class="entry-footer">
-            <button id="startBtn" class="soft-button entry-button breathing-button">Начать</button>
+        <!-- Кнопка внизу -->
+        <div class="intro-footer">
+            <button id="enterBtn" class="enter-button">Войти в тишину</button>
         </div>
     </div>
-
+    
     <script src="js/telegram.js"></script>
     <script src="js/transitions.js"></script>
     <script>
-        const startBtn = document.getElementById('startBtn');
+        const enterBtn = document.getElementById('enterBtn');
         
-        // Мягкий клик с переходом
-        startBtn.addEventListener('click', (e) => {
+        enterBtn.addEventListener('click', (e) => {
             e.preventDefault();
             
             // Мягкое сжатие
-            startBtn.style.transform = 'scale(0.96)';
-            startBtn.style.opacity = '0.6';
+            enterBtn.style.transform = 'scale(0.96)';
+            enterBtn.style.opacity = '0.7';
             
-            // Короткая вибрация
+            // Вибрация
             if(window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
             
-            // Fade-out и переход через transitions.js
             setTimeout(() => {
                 if(window.pageTransition) {
                     window.pageTransition.navigateTo('guide.html');
@@ -50,12 +57,6 @@
                     window.location.href = 'guide.html';
                 }
             }, 150);
-            
-            // Восстанавливаем кнопку после перехода
-            setTimeout(() => {
-                startBtn.style.transform = '';
-                startBtn.style.opacity = '';
-            }, 200);
         });
     </script>
 </body>
