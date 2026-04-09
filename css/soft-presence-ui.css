@@ -339,108 +339,18 @@
     background: rgba(242, 242, 238, 0.85);
 }
 
-/* ========== ЭКРАН ПРАКТИКИ ========== */
+/* ========== ПРАКТИКА — НОВАЯ ВЕРСИЯ ========== */
 
-/* Контейнер для дыхающей формы */
-.breathing-container {
+.practice-screen {
+    background: linear-gradient(145deg, #1E2A33 0%, #0F1820 100%);
+    min-height: 100vh;
+}
+
+.practice-container {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-    min-height: 280px;
-    position: relative;
-}
-
-/* Размытый дышащий круг */
-.breathing-blur {
-    width: 140px;
-    height: 140px;
-    background: radial-gradient(circle, rgba(200, 180, 150, 0.5) 0%, rgba(200, 180, 150, 0.1) 70%);
-    border-radius: 50%;
-    filter: blur(32px);
-    transition: none;
-    will-change: width, height, opacity;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-/* Текстовая подсказка фазы (Вдох / Выдох) */
-.phase-text {
-    position: absolute;
-    bottom: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 18px;
-    font-weight: 330;
-    letter-spacing: 2px;
-    color: rgba(242, 242, 238, 0.6);
-    text-align: center;
-    white-space: nowrap;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.phase-text.fade-in {
-    animation: phaseFadeIn 0.5s ease forwards;
-}
-
-.phase-text.fade-out {
-    animation: phaseFadeOut 0.4s ease forwards;
-}
-
-.phase-text.hidden {
-    display: none;
-}
-
-@keyframes phaseFadeIn {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(6px);
-    }
-    to {
-        opacity: 0.6;
-        transform: translateX(-50%) translateY(0);
-    }
-}
-
-@keyframes phaseFadeOut {
-    from {
-        opacity: 0.6;
-        transform: translateX(-50%) translateY(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-4px);
-    }
-}
-
-/* Таймер — менее доминирующий */
-.practice-screen .timer-large {
-    font-size: 56px;
-    opacity: 0.55;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-/* Нижние кнопки */
-.practice-footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 20px 40px;
-    margin-top: auto;
-}
-
-.cancel-btn, .finish-btn, .back-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.cancel-btn:active, .finish-btn:active, .back-btn:active {
-    transform: scale(0.96);
-    opacity: 0.7;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
 }
 
 /* Верхняя панель */
@@ -448,23 +358,149 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 20px;
     padding-top: 44px;
+    padding-left: 8px;
+    padding-right: 8px;
+    margin-bottom: 40px;
 }
 
 .back-btn {
+    background: none;
+    border: none;
     font-size: 15px;
-    opacity: 0.6;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
 }
 
 .app-title {
     font-size: 15px;
-    opacity: 0.7;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .bot-indicator {
     font-size: 13px;
-    opacity: 0.4;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Таймер */
+.timer-large {
+    text-align: center;
+    font-size: 72px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.6);
+    margin-bottom: 40px;
+}
+
+/* Дышащая фигура */
+.breathing-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 280px;
+    position: relative;
+}
+
+.breathing-shape {
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(200, 180, 150, 0.5) 0%, rgba(200, 180, 150, 0.05) 80%);
+    border-radius: 50%;
+    filter: blur(24px);
+    transition: none;
+    will-change: width, height;
+}
+
+/* Тексты фаз */
+.phase-text-guide {
+    text-align: center;
+    font-size: 24px;
+    font-weight: 330;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 32px;
+}
+
+.phase-instruction {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 350;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* Кнопки управления */
+.practice-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    margin-top: auto;
+    padding-bottom: 50px;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+}
+
+.play-pause-btn {
+    width: 56px;
+    height: 56px;
+    background: rgba(242, 242, 238, 0.15);
+    border: 1px solid rgba(242, 242, 238, 0.3);
+    border-radius: 50%;
+    font-size: 24px;
+    color: rgba(242, 242, 238, 0.8);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.play-pause-btn:active {
+    transform: scale(0.94);
+}
+
+.finish-btn {
+    width: 56px;
+    height: 56px;
+    background: rgba(242, 242, 238, 0.92);
+    border: none;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1A1C20;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.finish-btn:active {
+    transform: scale(0.94);
+}
+
+.finish-btn.hidden {
+    display: none;
+}
+
+/* Анимация текста */
+@keyframes phaseFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 /* ========== ЭКРАН РЕФЛЕКСИИ (пункт 6) ========== */
 
