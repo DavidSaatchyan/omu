@@ -63,6 +63,7 @@ class BreathingPractice {
 
         this.phaseNameAnim = null;
         this.phaseInstructionAnim = null;
+        this.lastPhaseKey = null;
 
         this.init();
     }
@@ -168,7 +169,8 @@ class BreathingPractice {
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.filter = `blur(${7 + this.glowIntensity * 4}px)`;
+        this.ctx.shadowBlur = 26 + this.glowIntensity * 18;
+        this.ctx.shadowColor = `rgba(242, 234, 222, ${0.22 * alphaK})`;
 
         const petals = [
             { x: this.centerX, y: this.centerY - offset, rx: petalX, ry: petalY },
@@ -184,7 +186,8 @@ class BreathingPractice {
             this.ctx.fill();
         }
 
-        this.ctx.filter = `blur(${3 + this.glowIntensity * 2}px)`;
+        this.ctx.shadowBlur = 14 + this.glowIntensity * 10;
+        this.ctx.shadowColor = `rgba(255, 255, 255, ${0.10 * alphaK})`;
         this.ctx.globalCompositeOperation = 'screen';
 
         const coreR = base * 0.32;
@@ -196,6 +199,7 @@ class BreathingPractice {
         this.ctx.ellipse(this.centerX, this.centerY, coreR, coreR, 0, 0, Math.PI * 2);
         this.ctx.fill();
 
+        this.ctx.shadowBlur = 0;
         this.ctx.restore();
     }
     
@@ -418,16 +422,18 @@ class BreathingPractice {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const minScale = 0.72;
-        const maxScale = 1.14;
+        const minScale = 0.78;
+        const maxScale = 1.24;
+
         const pRaw = (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius);
         const p = Math.min(1, Math.max(0, pRaw));
         const ease = (t) => t * t * (3 - 2 * t);
         const k = minScale + (maxScale - minScale) * ease(p);
 
-        const blurOuter = 7 + this.glowIntensity * 4;
-        const pad = Math.max(28, Math.ceil(blurOuter * 3.0));
-        const baseSize = Math.min(this.centerX, this.centerY) * 2 * 1.06;
+        const glowOuter = 22 + this.glowIntensity * 18;
+        const pad = Math.max(34, Math.ceil(glowOuter * 1.15));
+        const baseSize = Math.min(this.centerX, this.centerY) * 2 * 1.10;
+
         const safeSize = Math.max(1, baseSize - pad * 2);
         const targetSize = safeSize * k;
         const drawW = targetSize;
@@ -440,77 +446,69 @@ class BreathingPractice {
             return;
         }
 
+        // Outer glow (shadowBlur works in more WebViews than ctx.filter)
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
         this.ctx.globalAlpha = 0.22 + this.glowIntensity * 0.16;
-        this.ctx.filter = `blur(${blurOuter}px)`;
+        this.ctx.shadowBlur = glowOuter;
+        this.ctx.shadowColor = `rgba(242, 234, 222, ${0.26 + this.glowIntensity * 0.16})`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
+        // Mid body
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.16 + this.glowIntensity * 0.12;
-        this.ctx.filter = `blur(${2.2 + this.glowIntensity * 1.2}px)`;
+        this.ctx.globalAlpha = 0.18 + this.glowIntensity * 0.12;
+        this.ctx.shadowBlur = 10 + this.glowIntensity * 8;
+        this.ctx.shadowColor = `rgba(255, 255, 255, ${0.10 + this.glowIntensity * 0.08})`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
+        // Crisp core
         this.ctx.save();
-        this.ctx.globalCompositeOperation = 'screen';
+        this.ctx.globalCompositeOperation = 'source-over';
         this.ctx.globalAlpha = 0.10 + this.glowIntensity * 0.08;
-        this.ctx.filter = 'blur(0.6px)';
-        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
-        this.ctx.restore();
-
-        this.ctx.save();
-        this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.06 + this.glowIntensity * 0.06;
-        this.ctx.filter = 'none';
+        this.ctx.shadowBlur = 0;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
     }
     
     updatePhaseText(name, instruction) {
-        if (this.phaseName.textContent !== name) {
+        const nextKey = `${name}|${instruction}`;
+        if (this.lastPhaseKey !== nextKey) {
+            this.lastPhaseKey = nextKey;
             if (this.phaseNameAnim) this.phaseNameAnim.cancel();
             if (this.phaseInstructionAnim) this.phaseInstructionAnim.cancel();
 
+            // Pure opacity crossfade (transforms can shimmer/jitter in Telegram mobile WebView)
             const ease = 'cubic-bezier(0.2, 0.9, 0.4, 1.1)';
 
             const outName = this.phaseName.animate(
-                [
-                    { opacity: 1, transform: 'translateY(0px)' },
-                    { opacity: 0, transform: 'translateY(-4px)' }
-                ],
-                { duration: 240, easing: ease, fill: 'forwards' }
+                [{ opacity: 1 }, { opacity: 0 }],
+                { duration: 220, easing: ease, fill: 'forwards' }
             );
 
             const outInstr = this.phaseInstruction.animate(
-                [
-                    { opacity: 1, transform: 'translateY(0px)' },
-                    { opacity: 0, transform: 'translateY(-4px)' }
-                ],
-                { duration: 260, easing: ease, fill: 'forwards' }
+                [{ opacity: 1 }, { opacity: 0 }],
+                { duration: 240, easing: ease, fill: 'forwards' }
             );
 
             Promise.allSettled([outName.finished, outInstr.finished]).then(() => {
-                this.phaseName.textContent = name;
-                this.phaseInstruction.textContent = instruction;
+                // next frame to avoid layout jitter on some WebViews
+                requestAnimationFrame(() => {
+                    this.phaseName.textContent = name;
+                    this.phaseInstruction.textContent = instruction;
 
-                this.phaseNameAnim = this.phaseName.animate(
-                    [
-                        { opacity: 0, transform: 'translateY(8px)' },
-                        { opacity: 1, transform: 'translateY(0px)' }
-                    ],
-                    { duration: 620, easing: ease, fill: 'forwards' }
-                );
+                    this.phaseNameAnim = this.phaseName.animate(
+                        [{ opacity: 0 }, { opacity: 1 }],
+                        { duration: 520, easing: ease, fill: 'forwards' }
+                    );
 
-                this.phaseInstructionAnim = this.phaseInstruction.animate(
-                    [
-                        { opacity: 0, transform: 'translateY(8px)' },
-                        { opacity: 1, transform: 'translateY(0px)' }
-                    ],
-                    { duration: 760, easing: ease, fill: 'forwards', delay: 90 }
-                );
+                    this.phaseInstructionAnim = this.phaseInstruction.animate(
+                        [{ opacity: 0 }, { opacity: 1 }],
+                        { duration: 620, easing: ease, fill: 'forwards', delay: 90 }
+                    );
+                });
             });
         }
     }
