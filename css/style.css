@@ -58,50 +58,102 @@ body {
     color: white;
 }
 
-/* Экран практики */
-.timer-display {
-    font-size: 64px;
-    font-weight: 300;
-    font-feature-settings: "tnum";
-    text-align: center;
-    margin-bottom: 24px;
+/* Практика — точно по макету */
+.practice-screen {
+    background: #F5F0E8;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.timer-progress {
-    width: 80%;
-    height: 2px;
-    background: rgba(0,0,0,0.1);
-    margin: 20px auto;
-    border-radius: 2px;
-    overflow: hidden;
+/* Верхняя панель */
+.practice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    padding-top: 44px; /* отступ под статус бар */
 }
 
-.progress-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--accent);
-    transition: width 1s linear;
-}
-
-.instruction {
-    text-align: center;
-    font-size: 14px;
-    opacity: 0.6;
-    margin-top: 32px;
-}
-
-.interrupt-button {
-    position: fixed;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
+.back-btn {
     background: none;
     border: none;
-    color: rgba(0,0,0,0.3);
-    font-size: 14px;
+    font-size: 17px;
+    color: #8B7B6B;
     cursor: pointer;
+    padding: 8px 0;
 }
 
+.app-title {
+    font-size: 17px;
+    font-weight: 400;
+    color: #2C2C2C;
+}
+
+.bot-indicator {
+    font-size: 14px;
+    color: #8B7B6B;
+    opacity: 0.6;
+}
+
+/* Таймер крупный */
+.timer-large {
+    text-align: center;
+    font-size: 96px;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+    color: #2C2C2C;
+    margin-top: 60px;
+    margin-bottom: 60px;
+    letter-spacing: 4px;
+}
+
+/* Контейнер для размытого пятна */
+.blur-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 200px;
+}
+
+.blur-circle {
+    width: 140px;
+    height: 140px;
+    background: radial-gradient(circle, rgba(200, 170, 140, 0.4) 0%, rgba(200, 170, 140, 0.1) 70%);
+    border-radius: 50%;
+    filter: blur(20px);
+    transition: none;
+    will-change: width, height, opacity;
+}
+
+/* Нижние кнопки по бокам */
+.practice-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 20px 40px;
+    margin-top: auto;
+}
+
+.cancel-btn {
+    background: none;
+    border: none;
+    font-size: 17px;
+    color: #8B7B6B;
+    cursor: pointer;
+    padding: 12px 0;
+}
+
+.finish-btn {
+    background: none;
+    border: none;
+    font-size: 17px;
+    color: #C7A87B;
+    cursor: pointer;
+    padding: 12px 0;
+}
 /* Рефлексия */
 .reflection-question {
     font-size: 28px;
@@ -243,43 +295,24 @@ body {
     font-size: 12px;
     margin-top: 8px;
 }
-/* Guide Screen */
+/* Guide Screen — точно по макету */
 .guide-screen {
     background: #F5F0E8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .guide-container {
-    width: 100%;
-    max-width: 400px;
-    padding: 32px 20px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    padding: 20px;
 }
 
 .guide-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 60px;
-}
-
-.back-button {
-    background: none;
-    border: none;
-    font-size: 17px;
-    color: #8B7B6B;
-    cursor: pointer;
-    padding: 8px 0;
-}
-
-.bot-indicator {
-    font-size: 14px;
-    color: #8B7B6B;
-    opacity: 0.6;
+    padding: 12px 0;
+    padding-top: 44px;
 }
 
 .guide-content {
@@ -289,12 +322,12 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
+    padding: 0 20px;
 }
 
 .guide-title {
     font-size: 28px;
     font-weight: 300;
-    letter-spacing: -0.3px;
     color: #2C2C2C;
     margin-bottom: 20px;
 }
@@ -304,24 +337,15 @@ body {
     font-weight: 300;
     line-height: 1.5;
     color: #5C5C5C;
-    max-width: 280px;
+}
+/* Анимация появления */
+@keyframes gentleFade {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-.start-practice-btn {
-    background: none;
-    border: 1px solid #C7A87B;
-    color: #C7A87B;
-    padding: 14px 32px;
-    font-size: 18px;
-    border-radius: 40px;
-    cursor: pointer;
-    margin-bottom: 40px;
-    transition: all 0.2s;
-}
-
-.start-practice-btn:hover {
-    background: #C7A87B;
-    color: white;
+.guide-content, .timer-large, .blur-container {
+    animation: gentleFade 0.6s ease;
 }
 
 /* Practice Screen */
