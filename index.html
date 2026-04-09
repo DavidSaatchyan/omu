@@ -10,27 +10,28 @@
 </head>
 <body class="intro-screen">
     <div class="intro-container">
-        <!-- Верхняя панель -->
-        <div class="intro-header">
-            <span class="app-name">Omu: Brake to Awake</span>
-            <span class="bot-badge">bot</span>
+        
+        <!-- Логотип по центру сверху -->
+        <div class="intro-logo">
+            <img src="assets/logo.svg" alt="Omu" class="omu-logo-img">
         </div>
         
-        <!-- Центральный контент -->
+        <!-- Центральный контент (поднят выше) -->
         <div class="intro-content">
-            <div class="omu-logo">
-                <span class="omu-large">Omu:</span>
-                <span class="break-large">Break to Awake</span>
+            <div class="omu-title">
+                <span class="omu-small">Omu:</span>
+                <span class="break-small">Break to Awake</span>
             </div>
-            <div class="you-are-here">
-                <span class="here-text">Ты здесь</span>
+            <div class="you-here">
+                <span class="here-medium">Ты здесь</span>
             </div>
         </div>
         
-        <!-- Кнопка внизу -->
+        <!-- Кнопка -->
         <div class="intro-footer">
             <button id="enterBtn" class="enter-button">Войти в тишину</button>
         </div>
+        
     </div>
     
     <script src="js/telegram.js"></script>
@@ -40,12 +41,9 @@
         
         enterBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            
-            // Мягкое сжатие
             enterBtn.style.transform = 'scale(0.96)';
             enterBtn.style.opacity = '0.7';
             
-            // Вибрация
             if(window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
