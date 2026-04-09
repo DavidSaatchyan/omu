@@ -2,6 +2,7 @@
 
 class BreathingPractice {
     constructor() {
+
         // Canvas
         this.canvas = document.getElementById('breathingCanvas');
         this.ctx = this.canvas.getContext('2d');
@@ -58,7 +59,11 @@ class BreathingPractice {
         this.figureImg = null;
         this.figureReady = false;
         this.figureNaturalSize = 346;
-        
+        this.figureObjectUrl = null;
+
+        this.phaseNameAnim = null;
+        this.phaseInstructionAnim = null;
+
         this.init();
     }
     
@@ -107,21 +112,91 @@ class BreathingPractice {
     
     loadFigure() {
         this.figureReady = false;
-        this.figureImg = new Image();
-        this.figureImg.decoding = 'async';
-        this.figureImg.onload = () => {
-            this.figureReady = true;
-            const w = this.figureImg?.naturalWidth;
-            const h = this.figureImg?.naturalHeight;
-            if (typeof w === 'number' && typeof h === 'number' && w > 0 && h > 0) {
-                this.figureNaturalSize = Math.max(w, h);
-            }
-            this.draw();
+        if (this.figureObjectUrl) {
+            URL.revokeObjectURL(this.figureObjectUrl);
+            this.figureObjectUrl = null;
+        }
+
+        const src = 'assets/figures/breathing-figure 3.svg';
+        fetch(src)
+            .then((r) => {
+                if (!r.ok) throw new Error(`Failed to load figure: ${r.status}`);
+                return r.blob();
+            })
+            .then((blob) => {
+                this.figureObjectUrl = URL.createObjectURL(blob);
+                this.figureImg = new Image();
+                this.figureImg.decoding = 'async';
+                this.figureImg.onload = () => {
+                    this.figureReady = true;
+                    const w = this.figureImg?.naturalWidth;
+                    const h = this.figureImg?.naturalHeight;
+                    if (typeof w === 'number' && typeof h === 'number' && w > 0 && h > 0) {
+                        this.figureNaturalSize = Math.max(w, h);
+                    }
+                    this.draw();
+                };
+                this.figureImg.onerror = () => {
+                    this.figureReady = false;
+                    this.draw();
+                };
+                this.figureImg.src = this.figureObjectUrl;
+            })
+            .catch(() => {
+                this.figureReady = false;
+                this.draw();
+            });
+    }
+
+    drawProcedural(size, alphaK) {
+        const base = size * 0.5;
+        const offset = base * 0.26;
+        const petalX = base * 0.36;
+        const petalY = base * 0.52;
+
+        const aOuter = (0.16 + this.glowIntensity * 0.16) * alphaK;
+        const aMid = (0.10 + this.glowIntensity * 0.10) * alphaK;
+        const aCore = (0.08 + this.glowIntensity * 0.10) * alphaK;
+
+        const g = (cx, cy, r) => {
+            const gg = this.ctx.createRadialGradient(cx - r * 0.12, cy - r * 0.12, r * 0.06, cx, cy, r);
+            gg.addColorStop(0, `rgba(255, 252, 246, ${aOuter})`);
+            gg.addColorStop(0.55, `rgba(214, 197, 170, ${aMid})`);
+            gg.addColorStop(1, 'rgba(214, 197, 170, 0)');
+            return gg;
         };
-        this.figureImg.onerror = () => {
-            this.figureReady = false;
-        };
-        this.figureImg.src = 'assets/figures/breathing-figure 3.svg';
+
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'lighter';
+        this.ctx.filter = `blur(${10 + this.glowIntensity * 6}px)`;
+
+        const petals = [
+            { x: this.centerX, y: this.centerY - offset, rx: petalX, ry: petalY },
+            { x: this.centerX, y: this.centerY + offset, rx: petalX, ry: petalY },
+            { x: this.centerX - offset, y: this.centerY, rx: petalY, ry: petalX },
+            { x: this.centerX + offset, y: this.centerY, rx: petalY, ry: petalX }
+        ];
+
+        for (const p of petals) {
+            this.ctx.beginPath();
+            this.ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, 0, Math.PI * 2);
+            this.ctx.fillStyle = g(p.x, p.y, Math.max(p.rx, p.ry));
+            this.ctx.fill();
+        }
+
+        this.ctx.filter = `blur(${5 + this.glowIntensity * 3}px)`;
+        this.ctx.globalCompositeOperation = 'screen';
+
+        const coreR = base * 0.32;
+        const coreG = this.ctx.createRadialGradient(this.centerX, this.centerY, 0, this.centerX, this.centerY, coreR);
+        coreG.addColorStop(0, `rgba(255, 255, 255, ${aCore})`);
+        coreG.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = coreG;
+        this.ctx.beginPath();
+        this.ctx.ellipse(this.centerX, this.centerY, coreR, coreR, 0, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        this.ctx.restore();
     }
     
     setPractice(index) {
@@ -343,60 +418,71 @@ class BreathingPractice {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        if (!this.figureReady || !this.figureImg) return;
-
         const minScale = 0.62;
         const maxScale = 0.98;
         const p = (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius);
         const k = minScale + (maxScale - minScale) * Math.min(1, Math.max(0, p));
 
+        const blurOuter = 12 + this.glowIntensity * 6;
+        const pad = Math.max(24, Math.ceil(blurOuter * 2.4));
         const baseSize = Math.min(this.centerX, this.centerY) * 2;
-        const targetSize = baseSize * k;
+        const safeSize = Math.max(1, baseSize - pad * 2);
+        const targetSize = safeSize * k;
         const drawW = targetSize;
         const drawH = targetSize;
         const x = this.centerX - drawW / 2;
         const y = this.centerY - drawH / 2;
 
+        if (!this.figureReady || !this.figureImg) {
+            this.drawProcedural(targetSize, 1);
+            return;
+        }
+
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.globalAlpha = 0.34 + this.glowIntensity * 0.22;
-        this.ctx.filter = `blur(${16 + this.glowIntensity * 10}px)`;
+        this.ctx.globalAlpha = 0.26 + this.glowIntensity * 0.18;
+        this.ctx.filter = `blur(${blurOuter}px)`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.16 + this.glowIntensity * 0.14;
-        this.ctx.filter = `blur(${6 + this.glowIntensity * 5}px)`;
+        this.ctx.globalAlpha = 0.14 + this.glowIntensity * 0.12;
+        this.ctx.filter = `blur(${6 + this.glowIntensity * 2}px)`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'screen';
-        this.ctx.globalAlpha = 0.12 + this.glowIntensity * 0.10;
-        this.ctx.filter = 'blur(1px)';
+        this.ctx.globalAlpha = 0.10 + this.glowIntensity * 0.08;
+        this.ctx.filter = 'blur(0.8px)';
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
     }
     
     updatePhaseText(name, instruction) {
         if (this.phaseName.textContent !== name) {
-            this.phaseName.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-            this.phaseInstruction.style.transition = 'opacity 0.2s ease 0.05s, transform 0.2s ease';
-            
-            this.phaseName.style.opacity = '0';
-            this.phaseInstruction.style.opacity = '0';
-            this.phaseName.style.transform = 'translateY(4px)';
-            this.phaseInstruction.style.transform = 'translateY(4px)';
-            
-            setTimeout(() => {
-                this.phaseName.textContent = name;
-                this.phaseInstruction.textContent = instruction;
-                this.phaseName.style.opacity = '1';
-                this.phaseInstruction.style.opacity = '1';
-                this.phaseName.style.transform = 'translateY(0)';
-                this.phaseInstruction.style.transform = 'translateY(0)';
-            }, 150);
+            if (this.phaseNameAnim) this.phaseNameAnim.cancel();
+            if (this.phaseInstructionAnim) this.phaseInstructionAnim.cancel();
+
+            this.phaseName.textContent = name;
+            this.phaseInstruction.textContent = instruction;
+
+            this.phaseNameAnim = this.phaseName.animate(
+                [
+                    { opacity: 0, transform: 'translateY(6px)' },
+                    { opacity: 1, transform: 'translateY(0px)' }
+                ],
+                { duration: 520, easing: 'cubic-bezier(0.2, 0.9, 0.4, 1.1)', fill: 'forwards' }
+            );
+
+            this.phaseInstructionAnim = this.phaseInstruction.animate(
+                [
+                    { opacity: 0, transform: 'translateY(6px)' },
+                    { opacity: 1, transform: 'translateY(0px)' }
+                ],
+                { duration: 620, easing: 'cubic-bezier(0.2, 0.9, 0.4, 1.1)', fill: 'forwards', delay: 90 }
+            );
         }
     }
 }
