@@ -3,35 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Omu — Фиксация</title>
+    <title>Omu — Завершение</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/soft-presence-ui.css">
 </head>
-<body class="finish-screen">
-    <div class="container">
-        <div class="fixation-card">
-            <p class="soft-text">Ты был здесь</p>
-            
-            <div class="stats">
-                <div class="stat">
-                    <span class="stat-value" id="daysCount">0</span>
-                    <span class="stat-label">дней присутствия</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value" id="minutesCount">0</span>
-                    <span class="stat-label">минут тишины</span>
-                </div>
-            </div>
-            
-            <p class="small-text">Без сравнений. Без оценок. Просто путь.</p>
+<body class="finish-screen soft-ui">
+    <div class="container fade-gentle">
+        <!-- Главное сообщение -->
+        <div class="completion-message">
+            <p class="whisper-text completion-line">Ты был здесь</p>
         </div>
         
-        <div class="finish-buttons">
-            <button id="supportBtn" class="omu-button secondary">Поддержать проект</button>
-            <button id="homeBtn" class="omu-button">Завтра</button>
+        <!-- Статистика (округлённая) -->
+        <div class="completion-stats">
+            <div class="stat-item">
+                <span class="stat-number" id="daysCount">0</span>
+                <span class="stat-label">дней присутствия</span>
+            </div>
+            <div class="stat-divider"></div>
+            <div class="stat-item">
+                <span class="stat-number" id="minutesText">—</span>
+                <span class="stat-label">тишины</span>
+            </div>
+        </div>
+        
+        <!-- Приглашение вернуться (мягкое) -->
+        <div class="return-invite">
+            <button id="returnBtn" class="return-button">завтра</button>
+        </div>
+        
+        <!-- Поддержка проекта — строка, не кнопка -->
+        <div class="support-subtle">
+            <button id="supportBtn" class="support-link">поддержать проект</button>
         </div>
     </div>
-
+    
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
     <script>
@@ -39,16 +46,58 @@
         const state = new AppState();
         const stats = state.getStats();
         
-        document.getElementById('daysCount').textContent = stats.days;
-        document.getElementById('minutesCount').textContent = stats.minutes;
+        // Округляем минуты (без десятичных дробей!)
+        const totalMinutes = Math.round(stats.minutes);
+        const days = stats.days;
         
-        document.getElementById('supportBtn').addEventListener('click', () => {
+        // Форматируем текст для минут
+        let minutesText = '';
+        if (totalMinutes === 0) {
+            minutesText = '—';
+        } else if (totalMinutes === 1) {
+            minutesText = '1 минута';
+        } else if (totalMinutes >= 2 && totalMinutes <= 4) {
+            minutesText = `${totalMinutes} минуты`;
+        } else {
+            minutesText = `${totalMinutes} минут`;
+        }
+        
+        // Обновляем DOM
+        document.getElementById('daysCount').textContent = days;
+        document.getElementById('minutesText').textContent = minutesText;
+        
+        // Кнопка "завтра" — основной мягкий CTA
+        const returnBtn = document.getElementById('returnBtn');
+        returnBtn.addEventListener('click', () => {
+            // Мягкий отклик
+            returnBtn.style.transform = 'scale(0.96)';
+            returnBtn.style.opacity = '0.7';
+            
+            if(window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 200);
+        });
+        
+        // Поддержка проекта — строка, без давления
+        const supportBtn = document.getElementById('supportBtn');
+        supportBtn.addEventListener('click', () => {
+            if(window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
             window.location.href = 'support.html';
         });
         
-        document.getElementById('homeBtn').addEventListener('click', () => {
-            window.location.href = 'index.html';
-        });
+        // Отправляем аналитику завершения
+        if(window.appState) {
+            window.appState.sendAnalytics('session_complete', {
+                days: days,
+                minutes: totalMinutes
+            });
+        }
     </script>
 </body>
 </html>

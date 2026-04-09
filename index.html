@@ -6,22 +6,56 @@
     <title>Omu — Brake to Awake</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/soft-presence-ui.css">
 </head>
-<body class="entry-screen">
-    <div class="container">
-        <div class="gentle-setup">
-            <p class="soft-text">Пауза.</p>
-            <p class="soft-text small">Тишина внутри.</p>
+<body class="entry-screen soft-ui">
+    <div class="container fade-gentle">
+        <!-- Текст чуть выше центра -->
+        <div class="entry-content">
+            <div class="gentle-setup breathing-center">
+                <p class="whisper-text entry-line">Пауза.</p>
+                <p class="whisper-text entry-line">Тишина внутри.</p>
+            </div>
         </div>
         
-        <button id="startBtn" class="omu-button">Начать</button>
+        <!-- Кнопка ниже центра, между ними пустота -->
+        <div class="entry-footer">
+            <button id="startBtn" class="soft-button entry-button breathing-button">Начать</button>
+        </div>
     </div>
 
     <script src="js/telegram.js"></script>
-    <script src="js/state.js"></script>
+    <script src="js/transitions.js"></script>
     <script>
-        document.getElementById('startBtn').addEventListener('click', () => {
-            window.location.href = 'guide.html';  // вместо practice.html
+        const startBtn = document.getElementById('startBtn');
+        
+        // Мягкий клик с переходом
+        startBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Мягкое сжатие
+            startBtn.style.transform = 'scale(0.96)';
+            startBtn.style.opacity = '0.6';
+            
+            // Короткая вибрация
+            if(window.Telegram?.WebApp?.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+            }
+            
+            // Fade-out и переход через transitions.js
+            setTimeout(() => {
+                if(window.pageTransition) {
+                    window.pageTransition.navigateTo('guide.html');
+                } else {
+                    window.location.href = 'guide.html';
+                }
+            }, 150);
+            
+            // Восстанавливаем кнопку после перехода
+            setTimeout(() => {
+                startBtn.style.transform = '';
+                startBtn.style.opacity = '';
+            }, 200);
         });
     </script>
 </body>

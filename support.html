@@ -3,66 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Поддержать Omu</title>
+    <title>Omu — Поддержка</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/soft-presence-ui.css">
 </head>
-<body class="support-screen">
-    <div class="container">
-        <div class="support-message">
-            <p class="soft-text">Ты поддерживаешь,</p>
-            <p class="soft-text">а не покупаешь</p>
+<body class="support-screen soft-ui">
+    <div class="support-container fade-gentle">
+        <!-- Верхняя панель -->
+        <div class="support-header">
+            <button class="back-btn" id="backBtn">← Back</button>
+            <div class="app-title">Omu: Brake to Awake</div>
+            <div class="bot-indicator">bot</div>
         </div>
         
-        <div class="donation-options">
-            <button class="donation-btn" data-stars="50">
-                <span class="stars-count">50</span>
-                <span class="stars-label">Telegram Stars</span>
-                <span class="price">~0.75$</span>
-            </button>
+        <!-- Основной контент -->
+        <div class="support-content">
+            <!-- Главное сообщение — мягкое, не давящее -->
+            <div class="support-message">
+                <p class="support-line whisper-text">Ты поддерживаешь,</p>
+                <p class="support-line whisper-text">а не покупаешь</p>
+            </div>
             
-            <button class="donation-btn" data-stars="100">
-                <span class="stars-count">100</span>
-                <span class="stars-label">Telegram Stars</span>
-                <span class="price">~1.5$</span>
-            </button>
+            <!-- Описание — куда идут средства -->
+            <div class="support-description">
+                <p class="description-text">Твоя поддержка помогает сохранять<br>Omu свободным и тихим местом</p>
+            </div>
             
-            <button class="donation-btn" data-stars="250">
-                <span class="stars-count">250</span>
-                <span class="stars-label">Telegram Stars</span>
-                <span class="price">~3.75$</span>
-            </button>
+            <!-- Варианты поддержки (мягкие, не кричащие) -->
+            <div class="support-options">
+                <button class="support-option" data-stars="50">
+                    <span class="option-stars">50 ★</span>
+                    <span class="option-price">~0.75$</span>
+                </button>
+                <button class="support-option" data-stars="100">
+                    <span class="option-stars">100 ★</span>
+                    <span class="option-price">~1.5$</span>
+                </button>
+                <button class="support-option" data-stars="250">
+                    <span class="option-stars">250 ★</span>
+                    <span class="option-price">~3.75$</span>
+                </button>
+                <button class="support-option" data-stars="500">
+                    <span class="option-stars">500 ★</span>
+                    <span class="option-price">~7.5$</span>
+                </button>
+            </div>
             
-            <button class="donation-btn" data-stars="500">
-                <span class="stars-count">500</span>
-                <span class="stars-label">Telegram Stars</span>
-                <span class="price">~7.5$</span>
-            </button>
+            <!-- Пояснение (очень мелко, почти незаметно) -->
+            <div class="support-footnote">
+                <p class="footnote-text">Telegram Stars используются для поддержки<br>платформы и развития проекта</p>
+            </div>
         </div>
-        
-        <button id="backBtn" class="omu-button secondary">Вернуться</button>
     </div>
-
+    
     <script src="js/telegram.js"></script>
+    <script src="js/transitions.js"></script>
     <script>
-        const tg = window.Telegram.WebApp;
+        const tg = window.Telegram?.WebApp;
+        const backBtn = document.getElementById('backBtn');
+        const supportOptions = document.querySelectorAll('.support-option');
         
-        document.querySelectorAll('.donation-btn').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                const stars = parseInt(btn.dataset.stars);
+        // Мягкий переход назад
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if(window.pageTransition) {
+                window.pageTransition.softClick(backBtn, () => {
+                    window.pageTransition.navigateTo('finish.html');
+                });
+            } else {
+                window.location.href = 'finish.html';
+            }
+        });
+        
+        // Обработка выбора поддержки
+        supportOptions.forEach(option => {
+            option.addEventListener('click', async (e) => {
+                const stars = parseInt(option.dataset.stars);
                 
-                // Для Telegram Stars нужен backend
-                // Пока показываем тестовое сообщение
-                tg.showAlert(`Спасибо за желание поддержать! ❤️\n\n${stars} Stars — это поможет проекту жить.`);
+                // Мягкий отклик
+                option.style.transform = 'scale(0.97)';
+                option.style.opacity = '0.7';
                 
-                // TODO: Интеграция с @donate или Telegram Stars API
-                // tg.openInvoice(...)
+                if(tg?.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('light');
+                }
+                
+                // TODO: Интеграция с Telegram Stars
+                // Пока показываем мягкое сообщение
+                setTimeout(() => {
+                    option.style.transform = '';
+                    option.style.opacity = '';
+                    
+                    if(tg) {
+                        tg.showAlert(`Спасибо за желание поддержать Omu ❤️\n\n${stars} Stars — это поможет проекту жить.`);
+                    } else {
+                        alert(`Спасибо! ${stars} Stars — это поможет проекту жить.`);
+                    }
+                    
+                    // Отправляем аналитику
+                    if(window.appState) {
+                        window.appState.sendAnalytics('support_clicked', { stars });
+                    }
+                }, 150);
             });
         });
         
-        document.getElementById('backBtn').addEventListener('click', () => {
-            window.location.href = 'finish.html';
-        });
+        // Мягкое появление
+        document.querySelector('.support-container').style.animation = 'softAppear 0.5s ease';
     </script>
 </body>
 </html>
