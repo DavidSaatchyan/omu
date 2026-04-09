@@ -157,6 +157,26 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+.practice-screen button,
+.practice-screen [role="button"],
+.practice-screen a {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.practice-screen button:focus,
+.practice-screen button:active {
+    outline: none;
+    box-shadow: none;
+}
+
+.practice-screen button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(242, 242, 238, 0.08);
+}
+
 /* Правило 2: Центр всегда пустой / дышащий */
 .soft-ui .breathing-center {
     display: flex;
