@@ -841,3 +841,19 @@ button, a, .clickable {
 ::view-transition-new(root) {
     animation: none;
 }
+/* ========== CANVAS ДЛЯ ПРАКТИКИ ========== */
+
+.figure-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+    width: 100%;
+}
+
+#breathingCanvas {
+    width: 280px;
+    height: 280px;
+    display: block;
+    margin: 0 auto;
+}
