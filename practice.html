@@ -8,49 +8,40 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="practice-screen">
-    <div class="practice-container">
-        <!-- Верхняя панель -->
-        <div class="practice-header">
-            <button class="back-button" id="cancelBtn">Отмена</button>
-            <span class="bot-indicator">bot</span>
-            <button class="finish-button" id="finishBtn">Финиш</button>
-        </div>
-        
-        <!-- Таймер (крупно) -->
-        <div class="timer-display" id="timerDisplay">1:00</div>
-        
-        <!-- Анимация дыхания (пульсирующий круг) -->
-        <div class="breathing-container">
-            <canvas id="breathingCanvas" width="240" height="240"></canvas>
-        </div>
-        
-        <!-- Текстовая подсказка фазы -->
-        <div class="phase-hint" id="phaseHint">Вдох</div>
+    <!-- Верхняя панель как в макете -->
+    <div class="practice-header">
+        <button class="back-btn" id="backBtn">← Back</button>
+        <div class="app-title">Omu: Brake to Awake</div>
+        <div class="bot-indicator">bot</div>
+    </div>
+    
+    <!-- Таймер (крупные цифры) -->
+    <div class="timer-large" id="timerDisplay">1:00</div>
+    
+    <!-- Размытое пятно (анимация дыхания) -->
+    <div class="blur-container">
+        <div id="blurCircle" class="blur-circle"></div>
+    </div>
+    
+    <!-- Нижние кнопки по бокам -->
+    <div class="practice-footer">
+        <button class="cancel-btn" id="cancelBtn">Отмена</button>
+        <button class="finish-btn" id="finishBtn">Финиш</button>
     </div>
     
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
-    <script src="js/breathing.js"></script>
+    <script src="js/blur-breathing.js"></script>
     <script>
-        // Длительность практики в секундах (1:00 = 60 сек)
-        // Можно сделать 3-10 минут, но по макету 1:00
-        const durationSeconds = 60;
-        
-        // Инициализация анимации дыхания и таймера
-        const breathing = new BreathingAnimation({
-            canvasId: 'breathingCanvas',
-            phaseHintId: 'phaseHint',
-            onPhaseChange: (phase) => {
-                console.log('Phase:', phase);
-            }
-        });
-        
-        breathing.start();
-        
-        // Таймер обратного отсчёта
+        const durationSeconds = 60; // 1:00 по макету
         let remaining = durationSeconds;
         const timerElement = document.getElementById('timerDisplay');
         
+        // Запускаем анимацию размытого пятна
+        const breathing = new BlurBreathing('blurCircle');
+        breathing.start();
+        
+        // Таймер
         const timerInterval = setInterval(() => {
             remaining--;
             const minutes = Math.floor(remaining / 60);
@@ -60,7 +51,6 @@
             if(remaining <= 0) {
                 clearInterval(timerInterval);
                 breathing.stop();
-                // Сохраняем практику и переходим к рефлексии
                 if(window.appState) {
                     window.appState.addPractice(durationSeconds / 60);
                 }
@@ -69,14 +59,20 @@
         }, 1000);
         
         // Кнопки
-        document.getElementById('cancelBtn').addEventListener('click', () => {
+        document.getElementById('backBtn').addEventListener('click', () => {
             if(confirm('Прервать практику?')) {
                 window.location.href = 'guide.html';
             }
         });
         
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            if(confirm('Отменить практику?')) {
+                window.location.href = 'index.html';
+            }
+        });
+        
         document.getElementById('finishBtn').addEventListener('click', () => {
-            if(confirm('Завершить практику сейчас?')) {
+            if(confirm('Завершить практику?')) {
                 clearInterval(timerInterval);
                 breathing.stop();
                 if(window.appState) {
