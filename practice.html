@@ -8,213 +8,100 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/soft-presence-ui.css">
 </head>
-<body class="practice-screen soft-ui">
+<body class="practice-screen">
     <div class="practice-container">
-        <!-- Верхняя панель как в макете -->
+        
+        <!-- Верхняя панель -->
         <div class="practice-header">
-            <button class="back-btn" id="backBtn">← Back</button>
+            <button id="backBtn" class="back-btn">← Back</button>
             <div class="app-title">Omu: Brake to Awake</div>
             <div class="bot-indicator">bot</div>
         </div>
         
-        <!-- Таймер (менее доминирующий) -->
-        <div class="timer-large" id="timerDisplay">0:57</div>
+        <!-- Таймер -->
+        <div class="timer-large" id="timerDisplay">0:44</div>
         
-        <!-- ДЫШАЩАЯ ФОРМА (размытый круг/ореол) -->
-        <div class="breathing-container">
-            <div id="breathingBlur" class="breathing-blur"></div>
+        <!-- Анимация дыхания -->
+        <div class="breathing-wrapper">
+            <div id="breathingShape" class="breathing-shape"></div>
         </div>
         
-        <!-- Текстовая подсказка фазы (появляется/исчезает) -->
-        <div id="phaseText" class="phase-text hidden">Вдох</div>
+        <!-- Текст фазы -->
+        <div id="phaseText" class="phase-text-guide">Вдох</div>
+        <div id="phaseInstruction" class="phase-instruction">почувствуй тело</div>
         
-        <!-- Нижние кнопки по бокам -->
-        <div class="practice-footer">
-            <button class="cancel-btn" id="cancelBtn">Отмена</button>
-            <button class="finish-btn" id="finishBtn">Финиш</button>
+        <!-- Кнопки управления -->
+        <div class="practice-controls">
+            <button id="cancelBtn" class="cancel-btn">Отмена</button>
+            <button id="playPauseBtn" class="play-pause-btn">⏸</button>
+            <button id="finishBtn" class="finish-btn hidden">Финиш</button>
         </div>
+        
     </div>
     
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
+    <script src="js/breathing-practice.js"></script>
     <script>
-        // Длительность практики (57 секунд по макету)
-        const durationSeconds = 57;
-        let remaining = durationSeconds;
-        let animationId = null;
-        let startTime = null;
+        // Настройки практики
+        const practiceDuration = 44; // секунд (0:44)
         
-        const timerElement = document.getElementById('timerDisplay');
-        const breathingElement = document.getElementById('breathingBlur');
-        const phaseText = document.getElementById('phaseText');
-        
-        // Параметры дыхательного цикла (в миллисекундах)
-        // Вдох (4s) → Задержка (2s) → Выдох (6s) → Пауза (2s)
-        const cyclePhases = [
-            { name: 'Вдох', duration: 4000, action: 'expand' },
-            { name: '…', duration: 2000, action: 'hold' },
-            { name: 'Выдох', duration: 6000, action: 'contract' },
-            { name: '…', duration: 2000, action: 'hold' }
-        ];
-        
-        const totalCycleTime = 14000; // 14 секунд полный цикл
-        let cycleStartTime = performance.now();
-        
-        // Минимальный и максимальный размер размытого круга (в px)
-        const minSize = 100;
-        const maxSize = 200;
-        
-        // Таймер обратного отсчёта
-        const timerInterval = setInterval(() => {
-            remaining--;
-            const minutes = Math.floor(remaining / 60);
-            const seconds = remaining % 60;
-            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
-            if(remaining <= 0) {
-                clearInterval(timerInterval);
-                cancelAnimationFrame(animationId);
-                
-                // Короткая вибрация при завершении
-                if(window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-                }
-                
+        // Инициализация дыхательной практики
+        const breathing = new BreathingPractice({
+            shapeElement: 'breathingShape',
+            phaseTextElement: 'phaseText',
+            instructionElement: 'phaseInstruction',
+            timerElement: 'timerDisplay',
+            duration: practiceDuration,
+            onComplete: () => {
+                // Переход на рефлексию
                 if(window.appState) {
-                    window.appState.addPractice(durationSeconds / 60);
+                    window.appState.addPractice(practiceDuration / 60);
                 }
                 window.location.href = 'reflection.html';
             }
-        }, 1000);
+        });
         
-        // Анимация дыхания (размытый круг)
-        function animateBreathing(now) {
-            if (!breathingElement) return;
-            
-            const elapsed = (now - cycleStartTime) % totalCycleTime;
-            
-            // Определяем текущую фазу
-            let accumulatedTime = 0;
-            let currentPhase = null;
-            let phaseElapsed = 0;
-            
-            for (const phase of cyclePhases) {
-                if (elapsed < accumulatedTime + phase.duration) {
-                    currentPhase = phase;
-                    phaseElapsed = elapsed - accumulatedTime;
-                    break;
-                }
-                accumulatedTime += phase.duration;
-            }
-            
-            if (!currentPhase) return;
-            
-            // Прогресс в текущей фазе (0..1)
-            const phaseProgress = Math.min(1, Math.max(0, phaseElapsed / currentPhase.duration));
-            
-            // Вычисляем размер круга в зависимости от фазы
-            let size = minSize;
-            if (currentPhase.action === 'expand') {
-                // Вдох: увеличивается
-                size = minSize + (maxSize - minSize) * easeInOutCubic(phaseProgress);
-            } else if (currentPhase.action === 'contract') {
-                // Выдох: уменьшается
-                size = maxSize - (maxSize - minSize) * easeInOutCubic(phaseProgress);
-            } else {
-                // Задержка/пауза: размер не меняется
-                size = currentPhase.name === 'Вдох' ? maxSize : minSize;
-            }
-            
-            // Применяем размер
-            breathingElement.style.width = `${size}px`;
-            breathingElement.style.height = `${size}px`;
-            
-            // Плавная смена прозрачности
-            const opacity = 0.3 + (size - minSize) / (maxSize - minSize) * 0.3;
-            breathingElement.style.opacity = opacity;
-            
-            // Текстовая подсказка (появляется только на Вдох и Выдох)
-            if (currentPhase.name === 'Вдох' || currentPhase.name === 'Выдох') {
-                if (phaseText.textContent !== currentPhase.name) {
-                    phaseText.textContent = currentPhase.name;
-                    phaseText.classList.remove('hidden', 'fade-out');
-                    phaseText.classList.add('fade-in');
-                    
-                    // Лёгкая вибрация на смену фазы
-                    if(window.Telegram?.WebApp?.HapticFeedback && 
-                       (currentPhase.name === 'Вдох' || currentPhase.name === 'Выдох')) {
-                        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                    }
-                }
-                
-                // Плавное исчезновение к концу фазы
-                if (phaseProgress > 0.7) {
-                    phaseText.classList.add('fade-out');
-                } else {
-                    phaseText.classList.remove('fade-out');
-                }
-            } else {
-                // На паузах текст исчезает
-                if (!phaseText.classList.contains('hidden')) {
-                    phaseText.classList.add('fade-out');
-                    setTimeout(() => {
-                        if (phaseText.classList.contains('fade-out')) {
-                            phaseText.classList.add('hidden');
-                        }
-                    }, 400);
-                }
-            }
-            
-            animationId = requestAnimationFrame(animateBreathing);
-        }
-        
-        // Easing для плавности
-        function easeInOutCubic(x) {
-            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
-        }
-        
-        // Запускаем анимацию дыхания
-        cycleStartTime = performance.now();
-        animationId = requestAnimationFrame(animateBreathing);
-        
-        // Обработчики кнопок
+        // Кнопки
         document.getElementById('backBtn').addEventListener('click', () => {
             if(confirm('Прервать практику?')) {
-                clearInterval(timerInterval);
-                cancelAnimationFrame(animationId);
-                window.location.href = 'guide.html';
+                breathing.stop();
+                window.location.href = 'index.html';
             }
         });
         
         document.getElementById('cancelBtn').addEventListener('click', () => {
             if(confirm('Отменить практику?')) {
-                clearInterval(timerInterval);
-                cancelAnimationFrame(animationId);
+                breathing.stop();
                 window.location.href = 'index.html';
             }
         });
         
+        document.getElementById('playPauseBtn').addEventListener('click', () => {
+            const btn = document.getElementById('playPauseBtn');
+            const finishBtn = document.getElementById('finishBtn');
+            
+            if(breathing.isPlaying) {
+                breathing.pause();
+                btn.textContent = '▶';
+                finishBtn.classList.remove('hidden');
+            } else {
+                breathing.resume();
+                btn.textContent = '⏸';
+                finishBtn.classList.add('hidden');
+            }
+        });
+        
         document.getElementById('finishBtn').addEventListener('click', () => {
-            if(confirm('Завершить практику сейчас?')) {
-                clearInterval(timerInterval);
-                cancelAnimationFrame(animationId);
+            if(confirm('Завершить практику?')) {
+                breathing.stop();
                 if(window.appState) {
-                    window.appState.addPractice((durationSeconds - remaining) / 60);
+                    const elapsed = practiceDuration - breathing.remaining;
+                    window.appState.addPractice(elapsed / 60);
                 }
                 window.location.href = 'reflection.html';
             }
         });
-        
-        // Микровибрация при нажатии на кнопки
-        const buttons = ['backBtn', 'cancelBtn', 'finishBtn'];
-        buttons.forEach(id => {
-            document.getElementById(id)?.addEventListener('click', () => {
-                if(window.Telegram?.WebApp?.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                }
-            });
-        });
     </script>
-    <script src="js/transitions.js"></script>
 </body>
 </html>
