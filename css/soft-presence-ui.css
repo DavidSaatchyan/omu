@@ -339,7 +339,7 @@
     background: rgba(242, 242, 238, 0.85);
 }
 
-/* ========== ПРАКТИКА — НОВАЯ ВЕРСИЯ ========== */
+/* ========== ПРАКТИКА — ТОЧНО ПО МАКЕТУ ========== */
 
 .practice-screen {
     background: linear-gradient(145deg, #1E2A33 0%, #0F1820 100%);
@@ -349,112 +349,62 @@
 .practice-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    padding: 20px;
-}
-
-/* Верхняя панель */
-.practice-header {
-    display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding-top: 44px;
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-bottom: 40px;
-}
-
-.back-btn {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.5);
-    cursor: pointer;
-}
-
-.app-title {
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.bot-indicator {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.3);
-}
-
-/* Таймер */
-.timer-large {
-    text-align: center;
-    font-size: 72px;
-    font-weight: 300;
-    letter-spacing: 4px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-bottom: 40px;
-}
-
-/* Дышащая фигура */
-.breathing-wrapper {
-    display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 280px;
+    min-height: 100vh;
+    padding: 40px 24px;
     position: relative;
 }
 
-.breathing-shape {
-    width: 140px;
-    height: 140px;
-    background: radial-gradient(circle, rgba(200, 180, 150, 0.5) 0%, rgba(200, 180, 150, 0.05) 80%);
-    border-radius: 50%;
-    filter: blur(24px);
-    transition: none;
-    will-change: width, height;
+/* Заголовок сверху */
+.practice-header-title {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    text-align: center;
 }
 
-/* Тексты фаз */
-.phase-text-guide {
-    text-align: center;
-    font-size: 24px;
-    font-weight: 330;
-    letter-spacing: 2px;
-    color: rgba(255, 255, 255, 0.7);
-    margin-top: 32px;
-}
-
-.phase-instruction {
-    text-align: center;
-    font-size: 15px;
+.practice-headline {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
     font-weight: 350;
-    color: rgba(255, 255, 255, 0.4);
-    margin-top: 8px;
-    letter-spacing: 0.5px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.5);
+    margin: 0;
 }
 
-/* Кнопки управления */
-.practice-controls {
+/* Дышащая фигура (вертикальный овал) */
+.figure-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 40px;
-    margin-top: auto;
-    padding-bottom: 50px;
+    margin: 80px 0 40px 0;
 }
 
-.cancel-btn {
-    background: none;
-    border: none;
-    font-size: 15px;
-    color: rgba(255, 255, 255, 0.4);
-    cursor: pointer;
-}
-
-.play-pause-btn {
-    width: 56px;
-    height: 56px;
-    background: rgba(242, 242, 238, 0.15);
-    border: 1px solid rgba(242, 242, 238, 0.3);
+.breathing-figure {
+    width: 180px;
+    height: 240px;
+    background: radial-gradient(ellipse at center, rgba(200, 180, 150, 0.6) 0%, rgba(200, 180, 150, 0.1) 70%);
     border-radius: 50%;
-    font-size: 24px;
+    filter: blur(28px);
+    transform-origin: center;
+    transition: none;
+    will-change: transform, opacity;
+}
+
+/* Крупная кнопка PLAY */
+.play-wrapper {
+    margin: 20px 0;
+}
+
+.play-circle {
+    width: 80px;
+    height: 80px;
+    background: rgba(242, 242, 238, 0.15);
+    border: 1.5px solid rgba(242, 242, 238, 0.4);
+    border-radius: 50%;
+    font-size: 32px;
     color: rgba(242, 242, 238, 0.8);
     cursor: pointer;
     display: flex;
@@ -463,19 +413,67 @@
     transition: all 0.2s ease;
 }
 
-.play-pause-btn:active {
+.play-circle:active {
     transform: scale(0.94);
 }
 
-.finish-btn {
+/* Таймер */
+.timer-wrapper {
+    margin: 16px 0;
+}
+
+.practice-timer {
+    font-family: 'Georgia', monospace;
+    font-size: 48px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Текст подсказки */
+.hint-wrapper {
+    text-align: center;
+    margin-top: 24px;
+}
+
+.hint-text {
+    font-family: 'Georgia', serif;
+    font-size: 28px;
+    font-weight: 330;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.hint-subtext {
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    font-weight: 350;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 6px;
+    letter-spacing: 0.5px;
+}
+
+/* Кнопки управления (появляются при паузе) */
+.control-buttons {
+    position: absolute;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+}
+
+.control-buttons.hidden {
+    display: none;
+}
+
+.control-circle {
     width: 56px;
     height: 56px;
-    background: rgba(242, 242, 238, 0.92);
-    border: none;
     border-radius: 50%;
     font-size: 14px;
-    font-weight: 500;
-    color: #1A1C20;
+    font-weight: 400;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -483,16 +481,25 @@
     transition: all 0.2s ease;
 }
 
-.finish-btn:active {
+.control-circle:active {
     transform: scale(0.94);
 }
 
-.finish-btn.hidden {
-    display: none;
+.control-circle.cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
 }
 
-/* Анимация текста */
-@keyframes phaseFadeIn {
+.control-circle.finish {
+    background: rgba(242, 242, 238, 0.92);
+    border: none;
+    color: #1A1C20;
+    font-weight: 500;
+}
+
+/* Анимация появления текста */
+@keyframes hintFadeIn {
     from {
         opacity: 0;
         transform: translateY(6px);
