@@ -1,0 +1,856 @@
+﻿/* Soft Presence UI — v1.0
+   5 правил, которые НЕ нарушать:
+   1. Ничто не должно требовать внимания
+   2. Центр всегда пустой / дышащий
+   3. Текст — как шёпот, не как инструкция
+   4. Цифры — вторичны
+   5. Каждое действие имеет мягкий отклик
+*/
+
+/* ========== ТИПОГРАФИКА ========== */
+/* 1 шрифт — 3 размера — 2 веса */
+
+.soft-ui {
+    /* Основной шрифт — тихий, книжный, humanist */
+    font-family: 'Georgia', 'Times New Roman', 'Playfair Display', 'Cormorant Garamond', serif;
+    
+    /* Базовые настройки */
+    font-weight: 350;  /* между normal и light */
+    letter-spacing: 0.01em;
+    font-size: 16px;   /* базовый размер */
+    line-height: 1.5;
+    
+    /* Цвет текста (не чисто белый) */
+    color: #F2F2EE;
+}
+
+/* Размер 1: Заголовок (28–32px) */
+.soft-ui .heading-large,
+.soft-ui .guide-title,
+.soft-ui .reflection-question {
+    font-size: 30px;
+    font-weight: 330;  /* очень лёгкий, почти как thin */
+    line-height: 1.3;
+    letter-spacing: -0.3px;
+    opacity: 0.88;
+}
+
+/* Размер 2: Основной текст (16–18px) */
+.soft-ui .body-text,
+.soft-ui .whisper-text,
+.soft-ui .guide-text,
+.soft-ui .phase-hint,
+.soft-ui .instruction {
+    font-size: 17px;
+    font-weight: 350;
+    line-height: 1.5;
+    opacity: 0.75;
+}
+
+/* Размер 3: Вторичный / мелкий текст (13–14px) */
+.soft-ui .small-text,
+.soft-ui .stat-label,
+.soft-ui .bot-indicator,
+.soft-ui .price,
+.soft-ui .stars-label {
+    font-size: 13px;
+    font-weight: 350;
+    line-height: 1.4;
+    opacity: 0.55;
+    letter-spacing: 0.02em;
+}
+
+/* Вес 2: Чуть более заметный (но не жирный) */
+.soft-ui .medium-weight {
+    font-weight: 420;  /* semi-light, но не bold */
+    opacity: 0.9;
+}
+
+/* Специально для таймера — цифры вторичны */
+.soft-ui .timer-large {
+    font-size: 64px;
+    font-weight: 300;  /* очень тонкий */
+    letter-spacing: 4px;
+    opacity: 0.65;
+    font-feature-settings: "tnum";
+}
+
+.soft-ui .timer-subtle {
+    font-size: 32px;
+    font-weight: 300;
+    opacity: 0.5;
+    letter-spacing: 2px;
+}
+
+/* Кнопки — не жирные, не CAPS */
+.soft-ui .soft-button,
+.soft-ui .omu-button,
+.soft-ui .reflection-option,
+.soft-ui .donation-btn {
+    font-size: 16px;
+    font-weight: 350;
+    letter-spacing: 0.3px;
+    text-transform: none;  /* НИКАКИХ CAPS */
+}
+
+/* Отмена / Финиш — мелкие, тихие */
+.soft-ui .cancel-btn,
+.soft-ui .finish-btn,
+.soft-ui .back-btn {
+    font-size: 15px;
+    font-weight: 350;
+    opacity: 0.6;
+    letter-spacing: 0.2px;
+}
+
+.soft-ui .finish-btn {
+    opacity: 0.8;
+}
+
+/* Текст-приглашение в поле ввода */
+.soft-ui .free-input::placeholder {
+    font-size: 16px;
+    font-weight: 350;
+    opacity: 0.4;
+    letter-spacing: 0.2px;
+}
+
+/* НИКАКИХ CAPS и жирных CTA */
+.soft-ui button,
+.soft-ui .button {
+    text-transform: none;
+    font-weight: 350;
+}
+
+/* ========== ГРАДИЕНТ И ФОН ========== */
+
+/* Применяем ко всем экранам */
+.soft-ui {
+    background: linear-gradient(180deg, #1E2A33 0%, #0F1820 100%);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Шум/зерно (2-3%) */
+.soft-ui::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJmIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjciIG51bU9jdGF2ZXM9IjMiLz48L2ZpbHRlcj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWx0ZXI9InVybCgjZikiIG9wYWNpdHk9IjAuMDMiLz48L3N2Zz4=');
+    background-repeat: repeat;
+    opacity: 0.03;
+    mix-blend-mode: overlay;
+}
+
+/* ========== ПРАВИЛА UI ========== */
+
+/* Правило 1: Ничто не требует внимания */
+.soft-ui *,
+.soft-ui *:focus,
+.soft-ui *:active {
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Правило 2: Центр всегда пустой / дышащий */
+.soft-ui .breathing-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Правило 4: Цифры — вторичны (уже реализовано в timer-large) */
+
+/* Правило 5: Мягкий отклик на действия */
+.soft-ui .soft-button {
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid rgba(242, 242, 238, 0.25);
+    border-radius: 40px;
+    padding: 10px 24px;
+    backdrop-filter: blur(2px);
+}
+
+.soft-ui .soft-button:hover,
+.soft-ui .soft-button:active {
+    transform: scale(0.97);
+    border-color: rgba(242, 242, 238, 0.5);
+    background: rgba(242, 242, 238, 0.05);
+}
+
+/* Свечение при фокусе */
+.soft-ui .soft-button:focus-visible {
+    box-shadow: 0 0 12px rgba(242, 242, 238, 0.2);
+}
+
+/* Плавное появление */
+.soft-ui .fade-gentle {
+    animation: softFadeIn 0.7s ease;
+}
+
+@keyframes softFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Контейнер поверх шума */
+.soft-ui .container,
+.soft-ui .guide-container,
+.soft-ui .practice-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* ========== INTRO SCREEN ========== */
+
+.intro-screen {
+    background: linear-gradient(145deg, #1E2A33 0%, #0F1820 100%);
+    min-height: 100vh;
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Логотип выше (уменьшил отступ сверху) */
+.intro-logo {
+    display: flex;
+    justify-content: center;
+    padding-top: 40px;
+    margin-bottom: 60px;
+}
+
+.omu-logo-img {
+    width: 48px;
+    height: 48px;
+    opacity: 0.9;
+}
+
+/* Центральный контент — ближе к лого */
+.intro-content {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-top: 0;
+}
+
+/* Уменьшенный основной текст */
+.omu-title {
+    margin-bottom: 20px;
+}
+
+.omu-small {
+    display: block;
+    font-family: 'Georgia', serif;
+    font-size: 36px;
+    font-weight: 330;
+    letter-spacing: -0.5px;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.2;
+}
+
+.break-small {
+    display: block;
+    font-family: 'Georgia', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: -0.3px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.3;
+}
+
+/* "Ты здесь" — заметнее + анимация появления */
+.you-here {
+    margin-top: 12px;
+}
+
+.animate-here {
+    animation: slideUpFade 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+}
+
+@keyframes slideUpFade {
+    0% {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.here-medium {
+    font-family: 'Georgia', serif;
+    font-size: 18px;
+    font-weight: 420;
+    color: rgba(255, 255, 255, 0.75);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* Кнопка со светлой заливкой и тёмным текстом */
+.intro-footer {
+    padding-bottom: 60px;
+    display: flex;
+    justify-content: center;
+    margin-top: auto;
+}
+
+.enter-button-light {
+    background: rgba(242, 242, 238, 0.92);
+    border: none;
+    border-radius: 40px;
+    padding: 12px 32px;
+    font-family: 'Georgia', serif;
+    font-size: 16px;
+    font-weight: 450;
+    color: #1A1C20;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.enter-button-light:hover {
+    background: rgba(242, 242, 238, 1);
+    transform: scale(1.02);
+}
+
+.enter-button-light:active {
+    transform: scale(0.96);
+    background: rgba(242, 242, 238, 0.85);
+}
+
+/* ========== ПРАКТИКА — ИТОГОВАЯ ВЕРСИЯ ========== */
+
+.practice-screen {
+    background: linear-gradient(145deg, #1E2A33 0%, #0F1820 100%);
+    min-height: 100vh;
+}
+
+.practice-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    position: relative;
+}
+
+/* Заголовок */
+.practice-headline {
+    font-family: 'Georgia', serif;
+    font-size: 18px;
+    font-weight: 350;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.45);
+    margin-bottom: 60px;
+}
+
+/* Фигура */
+.figure-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 40px;
+    width: 280px;
+    height: 280px;
+}
+
+.breathing-figure {
+    width: 220px;
+    height: 300px;
+    background: radial-gradient(ellipse at center, 
+        rgba(220, 200, 170, 0.5) 0%, 
+        rgba(220, 200, 170, 0.12) 45%,
+        rgba(220, 200, 170, 0) 100%);
+    border-radius: 50%;
+    filter: blur(28px);
+    transform-origin: center;
+    transition: none;
+    will-change: transform, opacity;
+    /* Добавляем лёгкое свечение */
+    box-shadow: 0 0 40px rgba(220, 200, 170, 0.2);
+}
+
+/* Крупная кнопка PLAY/PAUSE */
+.main-play-btn {
+    width: 72px;
+    height: 72px;
+    background: rgba(242, 242, 238, 0.12);
+    border: 1.5px solid rgba(242, 242, 238, 0.35);
+    border-radius: 50%;
+    font-size: 28px;
+    color: rgba(242, 242, 238, 0.85);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    margin-bottom: 24px;
+}
+
+.main-play-btn:active {
+    transform: scale(0.94);
+    background: rgba(242, 242, 238, 0.2);
+}
+
+/* Таймер */
+.timer-container {
+    margin-bottom: 24px;
+}
+
+.timer-digits {
+    font-family: 'Georgia', monospace;
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+/* Текст подсказки */
+.hint-container {
+    text-align: center;
+}
+
+.phase-name {
+    font-family: 'Georgia', serif;
+    font-size: 26px;
+    font-weight: 330;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.75);
+    transition: opacity 0.15s ease, transform 0.2s ease;
+}
+
+.phase-instruction {
+    font-family: 'Georgia', serif;
+    font-size: 14px;
+    font-weight: 350;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+    transition: opacity 0.15s ease 0.05s, transform 0.2s ease;
+}
+
+/* Кнопки управления (пауза) */
+.action-buttons {
+    position: absolute;
+    bottom: 50px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 40px;
+}
+
+.action-buttons.hidden {
+    display: none;
+}
+
+.action-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    font-family: 'Georgia', serif;
+}
+
+.action-circle:active {
+    transform: scale(0.94);
+}
+
+.cancel-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.finish-btn {
+    background: rgba(242, 242, 238, 0.92);
+    border: none;
+    color: #1A1C20;
+    font-weight: 450;
+}
+/* ========== ЭКРАН РЕФЛЕКСИИ (пункт 6) ========== */
+
+.reflection-screen .container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: center;
+    padding: 40px 24px;
+}
+
+/* Вопрос — тихо, не как опрос */
+.reflection-question {
+    font-size: 24px;
+    font-weight: 330;
+    text-align: center;
+    margin-bottom: 48px;
+    opacity: 0.8;
+    letter-spacing: -0.2px;
+}
+
+/* Кнопки-состояния — мягкие, не формальные */
+.reflection-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.reflection-state {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    border: 1px solid rgba(242, 242, 238, 0.2);
+    border-radius: 60px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.reflection-state .state-icon {
+    font-size: 18px;
+    opacity: 0.5;
+    transition: all 0.2s ease;
+}
+
+.reflection-state .state-text {
+    font-size: 17px;
+    font-weight: 350;
+    opacity: 0.7;
+    transition: all 0.2s ease;
+}
+
+/* Активное состояние — плавное заполнение + свечение */
+.reflection-state.active {
+    border-color: rgba(242, 242, 238, 0.5);
+    background: rgba(242, 242, 238, 0.08);
+    box-shadow: 0 0 16px rgba(242, 242, 238, 0.08);
+}
+
+.reflection-state.active .state-icon {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+.reflection-state.active .state-text {
+    opacity: 0.95;
+}
+
+/* Неактивные — растворяются (при наличии активного) */
+.reflection-options:has(.reflection-state.active) .reflection-state:not(.active) {
+    opacity: 0.4;
+    border-color: rgba(242, 242, 238, 0.1);
+}
+
+.reflection-state:hover {
+    border-color: rgba(242, 242, 238, 0.35);
+    background: rgba(242, 242, 238, 0.03);
+}
+
+/* Поле ввода — без рамки, как приглашение */
+.reflection-free {
+    margin-bottom: 32px;
+}
+
+.free-input-soft {
+    width: 100%;
+    background: rgba(242, 242, 238, 0.04);
+    border: none;
+    border-bottom: 1px solid rgba(242, 242, 238, 0.15);
+    padding: 12px 8px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 350;
+    color: #F2F2EE;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.free-input-soft:focus {
+    outline: none;
+    border-bottom-color: rgba(242, 242, 238, 0.4);
+    background: rgba(242, 242, 238, 0.02);
+}
+
+.free-input-soft::placeholder {
+    color: rgba(242, 242, 238, 0.3);
+    font-weight: 330;
+    font-size: 15px;
+}
+
+/* Кнопка отправки — мягкая, не CTA */
+.reflection-submit {
+    display: flex;
+    justify-content: center;
+}
+
+.soft-submit {
+    background: none;
+    border: none;
+    color: rgba(242, 242, 238, 0.5);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 350;
+    letter-spacing: 0.5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.soft-submit:hover {
+    color: rgba(242, 242, 238, 0.8);
+}
+
+.soft-submit:active {
+    transform: scale(0.96);
+    color: rgba(242, 242, 238, 0.6);
+}
+
+/* ========== ЭКРАН ФИКСАЦИИ / ЗАВЕРШЕНИЯ (пункт 7) ========== */
+
+.finish-screen .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 24px;
+    text-align: center;
+}
+
+/* Главное сообщение */
+.completion-message {
+    margin-bottom: 48px;
+}
+
+.completion-line {
+    font-size: 22px;
+    opacity: 0.7;
+    letter-spacing: 1px;
+}
+
+/* Статистика — центральный блок */
+.completion-stats {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 64px;
+    flex-wrap: wrap;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1.2;
+    color: #F2F2EE;
+    opacity: 0.85;
+    margin-bottom: 8px;
+    font-feature-settings: "tnum";
+}
+
+.stat-divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(242, 242, 238, 0.2);
+}
+
+.stat-label {
+    font-size: 13px;
+    opacity: 0.45;
+    letter-spacing: 0.5px;
+}
+
+/* Приглашение вернуться — мягкое, не давящее */
+.return-invite {
+    margin-bottom: 32px;
+}
+
+.return-button {
+    background: none;
+    border: 1px solid rgba(242, 242, 238, 0.25);
+    border-radius: 40px;
+    padding: 10px 32px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 350;
+    color: #F2F2EE;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.return-button:hover {
+    opacity: 0.9;
+    border-color: rgba(242, 242, 238, 0.4);
+}
+
+.return-button:active {
+    transform: scale(0.96);
+}
+
+/* Поддержка проекта — строка, меньше контраста */
+.support-subtle {
+    margin-top: 20px;
+}
+
+.support-link {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 350;
+    color: #F2F2EE;
+    opacity: 0.3;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+}
+
+.support-link:hover {
+    opacity: 0.5;
+}
+
+.support-link:active {
+    transform: scale(0.97);
+    opacity: 0.4;
+}
+
+/* Адаптация для маленьких экранов */
+@media (max-width: 400px) {
+    .stat-number {
+        font-size: 40px;
+    }
+    
+    .completion-stats {
+        gap: 24px;
+    }
+    
+    .completion-line {
+        font-size: 20px;
+    }
+}
+
+/* ========== АНИМАЦИИ ПЕРЕХОДОВ (пункт 8) ========== */
+
+/* Базовый crossfade для body */
+body {
+    transition: opacity 400ms cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    opacity: 1;
+}
+
+/* Мягкое появление элементов */
+.fade-in-soft {
+    animation: softAppear 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+}
+
+@keyframes softAppear {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Slow fade-in для таймера при старте */
+.timer-large {
+    animation: timerAppear 0.8s ease-out;
+}
+
+@keyframes timerAppear {
+    from {
+        opacity: 0;
+        letter-spacing: 8px;
+    }
+    to {
+        opacity: 0.55;
+        letter-spacing: 4px;
+    }
+}
+
+/* Мягкое появление дыхающего круга */
+.breathing-blur {
+    animation: blurAppear 0.6s ease-out;
+}
+
+@keyframes blurAppear {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.8);
+    }
+    to {
+        opacity: 0.3;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Запрещённые анимации — переопределяем если вдруг появятся */
+.no-slide,
+.no-bounce {
+    animation: none !important;
+    transition: none !important;
+}
+
+/* Запрещаем bounce на любых интерактивных элементах */
+button, a, .clickable {
+    transition-timing-function: cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* Убираем стандартные анимации Telegram где возможно */
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+}
+/* ========== CANVAS ДЛЯ ПРАКТИКИ ========== */
+
+.practice-screen .figure-container {
+    margin: 0 0 40px;
+    width: 280px;
+    height: 280px;
+}
+
+.practice-screen #breathingCanvas {
+    width: 280px;
+    height: 280px;
+    display: block;
+}
