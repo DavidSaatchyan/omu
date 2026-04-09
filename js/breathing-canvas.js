@@ -418,8 +418,6 @@ class BreathingPractice {
     draw() {
         if (!this.ctx) return;
 
-        this.setupCanvas();
-        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         const minScale = 0.78;
