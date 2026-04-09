@@ -168,7 +168,7 @@ class BreathingPractice {
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.filter = `blur(${10 + this.glowIntensity * 6}px)`;
+        this.ctx.filter = `blur(${7 + this.glowIntensity * 4}px)`;
 
         const petals = [
             { x: this.centerX, y: this.centerY - offset, rx: petalX, ry: petalY },
@@ -184,7 +184,7 @@ class BreathingPractice {
             this.ctx.fill();
         }
 
-        this.ctx.filter = `blur(${5 + this.glowIntensity * 3}px)`;
+        this.ctx.filter = `blur(${3 + this.glowIntensity * 2}px)`;
         this.ctx.globalCompositeOperation = 'screen';
 
         const coreR = base * 0.32;
@@ -418,14 +418,16 @@ class BreathingPractice {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        const minScale = 0.62;
-        const maxScale = 0.98;
-        const p = (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius);
-        const k = minScale + (maxScale - minScale) * Math.min(1, Math.max(0, p));
+        const minScale = 0.72;
+        const maxScale = 1.14;
+        const pRaw = (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius);
+        const p = Math.min(1, Math.max(0, pRaw));
+        const ease = (t) => t * t * (3 - 2 * t);
+        const k = minScale + (maxScale - minScale) * ease(p);
 
-        const blurOuter = 12 + this.glowIntensity * 6;
-        const pad = Math.max(24, Math.ceil(blurOuter * 2.4));
-        const baseSize = Math.min(this.centerX, this.centerY) * 2;
+        const blurOuter = 7 + this.glowIntensity * 4;
+        const pad = Math.max(28, Math.ceil(blurOuter * 3.0));
+        const baseSize = Math.min(this.centerX, this.centerY) * 2 * 1.06;
         const safeSize = Math.max(1, baseSize - pad * 2);
         const targetSize = safeSize * k;
         const drawW = targetSize;
@@ -440,22 +442,29 @@ class BreathingPractice {
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.globalAlpha = 0.26 + this.glowIntensity * 0.18;
+        this.ctx.globalAlpha = 0.22 + this.glowIntensity * 0.16;
         this.ctx.filter = `blur(${blurOuter}px)`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'source-over';
-        this.ctx.globalAlpha = 0.14 + this.glowIntensity * 0.12;
-        this.ctx.filter = `blur(${6 + this.glowIntensity * 2}px)`;
+        this.ctx.globalAlpha = 0.16 + this.glowIntensity * 0.12;
+        this.ctx.filter = `blur(${2.2 + this.glowIntensity * 1.2}px)`;
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'screen';
         this.ctx.globalAlpha = 0.10 + this.glowIntensity * 0.08;
-        this.ctx.filter = 'blur(0.8px)';
+        this.ctx.filter = 'blur(0.6px)';
+        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
+        this.ctx.restore();
+
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = 0.06 + this.glowIntensity * 0.06;
+        this.ctx.filter = 'none';
         this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
     }
@@ -465,24 +474,44 @@ class BreathingPractice {
             if (this.phaseNameAnim) this.phaseNameAnim.cancel();
             if (this.phaseInstructionAnim) this.phaseInstructionAnim.cancel();
 
-            this.phaseName.textContent = name;
-            this.phaseInstruction.textContent = instruction;
+            const ease = 'cubic-bezier(0.2, 0.9, 0.4, 1.1)';
 
-            this.phaseNameAnim = this.phaseName.animate(
+            const outName = this.phaseName.animate(
                 [
-                    { opacity: 0, transform: 'translateY(6px)' },
-                    { opacity: 1, transform: 'translateY(0px)' }
+                    { opacity: 1, transform: 'translateY(0px)' },
+                    { opacity: 0, transform: 'translateY(-4px)' }
                 ],
-                { duration: 520, easing: 'cubic-bezier(0.2, 0.9, 0.4, 1.1)', fill: 'forwards' }
+                { duration: 240, easing: ease, fill: 'forwards' }
             );
 
-            this.phaseInstructionAnim = this.phaseInstruction.animate(
+            const outInstr = this.phaseInstruction.animate(
                 [
-                    { opacity: 0, transform: 'translateY(6px)' },
-                    { opacity: 1, transform: 'translateY(0px)' }
+                    { opacity: 1, transform: 'translateY(0px)' },
+                    { opacity: 0, transform: 'translateY(-4px)' }
                 ],
-                { duration: 620, easing: 'cubic-bezier(0.2, 0.9, 0.4, 1.1)', fill: 'forwards', delay: 90 }
+                { duration: 260, easing: ease, fill: 'forwards' }
             );
+
+            Promise.allSettled([outName.finished, outInstr.finished]).then(() => {
+                this.phaseName.textContent = name;
+                this.phaseInstruction.textContent = instruction;
+
+                this.phaseNameAnim = this.phaseName.animate(
+                    [
+                        { opacity: 0, transform: 'translateY(8px)' },
+                        { opacity: 1, transform: 'translateY(0px)' }
+                    ],
+                    { duration: 620, easing: ease, fill: 'forwards' }
+                );
+
+                this.phaseInstructionAnim = this.phaseInstruction.animate(
+                    [
+                        { opacity: 0, transform: 'translateY(8px)' },
+                        { opacity: 1, transform: 'translateY(0px)' }
+                    ],
+                    { duration: 760, easing: ease, fill: 'forwards', delay: 90 }
+                );
+            });
         }
     }
 }
