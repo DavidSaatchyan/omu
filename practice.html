@@ -11,42 +11,38 @@
 <body class="practice-screen">
     <div class="practice-container">
         
-        <!-- Заголовок сверху -->
-        <div class="practice-header-title">
-            <h1 class="practice-headline">Практика осознанности</h1>
-        </div>
+        <!-- Заголовок -->
+        <div class="practice-headline">Практика осознанности</div>
         
-        <!-- Дышащая фигура (центр) -->
-        <div class="figure-wrapper">
+        <!-- Дышащая фигура -->
+        <div class="figure-container">
             <div id="breathingFigure" class="breathing-figure"></div>
         </div>
         
         <!-- Крупная кнопка PLAY/PAUSE -->
-        <div class="play-wrapper">
-            <button id="playPauseBtn" class="play-circle">▶</button>
+        <button id="playPauseBtn" class="main-play-btn">▶</button>
+        
+        <!-- Таймер -->
+        <div class="timer-container">
+            <span id="timerDisplay" class="timer-digits">0:00</span>
         </div>
         
-        <!-- Таймер (под кнопкой) -->
-        <div class="timer-wrapper">
-            <span id="timerDisplay" class="practice-timer">0:00</span>
+        <!-- Текст подсказки -->
+        <div class="hint-container">
+            <div id="phaseName" class="phase-name">Вдох</div>
+            <div id="phaseInstruction" class="phase-instruction">почувствуй тело</div>
         </div>
         
-        <!-- Текст подсказки (появляется) -->
-        <div class="hint-wrapper">
-            <div id="hintText" class="hint-text">Вдох</div>
-            <div id="hintSubtext" class="hint-subtext">почувствуй тело</div>
-        </div>
-        
-        <!-- Кнопки управления (появляются при паузе) -->
-        <div id="controlButtons" class="control-buttons hidden">
-            <button id="cancelCircle" class="control-circle cancel">Отмена</button>
-            <button id="finishCircle" class="control-circle finish">Финиш</button>
+        <!-- Кнопки управления (пауза) -->
+        <div id="actionButtons" class="action-buttons hidden">
+            <button id="cancelBtn" class="action-circle cancel-btn">Отмена</button>
+            <button id="finishActionBtn" class="action-circle finish-btn">Финиш</button>
         </div>
         
     </div>
     
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
-    <script src="js/breathing-core.js"></script>
+    <script src="js/breathing-final.js"></script>
 </body>
 </html>
