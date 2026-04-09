@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -8,64 +8,83 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body class="practice-screen">
-    <div class="timer-container">
-        <div id="timer" class="timer-display">5:00</div>
-        <div class="timer-progress">
-            <div id="progressFill" class="progress-fill"></div>
+    <div class="practice-container">
+        <!-- Верхняя панель -->
+        <div class="practice-header">
+            <button class="back-button" id="cancelBtn">Отмена</button>
+            <span class="bot-indicator">bot</span>
+            <button class="finish-button" id="finishBtn">Финиш</button>
         </div>
-        <p class="instruction">Просто дыши.</p>
-        <p class="instruction small">Ты в безопасности</p>
+        
+        <!-- Таймер (крупно) -->
+        <div class="timer-display" id="timerDisplay">1:00</div>
+        
+        <!-- Анимация дыхания (пульсирующий круг) -->
+        <div class="breathing-container">
+            <canvas id="breathingCanvas" width="240" height="240"></canvas>
+        </div>
+        
+        <!-- Текстовая подсказка фазы -->
+        <div class="phase-hint" id="phaseHint">Вдох</div>
     </div>
-
-    <button id="interruptBtn" class="interrupt-button">Прервать</button>
-
+    
     <script src="js/telegram.js"></script>
     <script src="js/state.js"></script>
-    <script src="js/timer.js"></script>
+    <script src="js/breathing.js"></script>
     <script>
-        // Длительность: 5 минут (можно изменить на 3-10)
-        const duration = 5 * 60; // 300 секунд
+        // Длительность практики в секундах (1:00 = 60 сек)
+        // Можно сделать 3-10 минут, но по макету 1:00
+        const durationSeconds = 60;
         
-        // Отправляем аналитику старта
-        if(window.appState) {
-            window.appState.sendAnalytics('practice_start', { duration: duration / 60 });
-        }
+        // Инициализация анимации дыхания и таймера
+        const breathing = new BreathingAnimation({
+            canvasId: 'breathingCanvas',
+            phaseHintId: 'phaseHint',
+            onPhaseChange: (phase) => {
+                console.log('Phase:', phase);
+            }
+        });
         
-        // Создаём и запускаем таймер
-        const timer = new Timer(duration, {
-            onTick: (remaining) => {
-                // Можно добавить дополнительную логику при каждом тике
-                // Например, вибрацию на последних 10 секундах
-                if(remaining <= 10 && remaining > 0) {
-                    // Лёгкая вибрация если поддерживается
-                    if(window.Telegram?.WebApp?.HapticFeedback) {
-                        window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-                    }
+        breathing.start();
+        
+        // Таймер обратного отсчёта
+        let remaining = durationSeconds;
+        const timerElement = document.getElementById('timerDisplay');
+        
+        const timerInterval = setInterval(() => {
+            remaining--;
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+            timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            
+            if(remaining <= 0) {
+                clearInterval(timerInterval);
+                breathing.stop();
+                // Сохраняем практику и переходим к рефлексии
+                if(window.appState) {
+                    window.appState.addPractice(durationSeconds / 60);
                 }
-            },
-            onComplete: () => {
-                // Переход на рефлексию
+                window.location.href = 'reflection.html';
+            }
+        }, 1000);
+        
+        // Кнопки
+        document.getElementById('cancelBtn').addEventListener('click', () => {
+            if(confirm('Прервать практику?')) {
+                window.location.href = 'guide.html';
+            }
+        });
+        
+        document.getElementById('finishBtn').addEventListener('click', () => {
+            if(confirm('Завершить практику сейчас?')) {
+                clearInterval(timerInterval);
+                breathing.stop();
+                if(window.appState) {
+                    window.appState.addPractice((durationSeconds - remaining) / 60);
+                }
                 window.location.href = 'reflection.html';
             }
         });
-        
-        // Обработчик прерывания
-        document.getElementById('interruptBtn').addEventListener('click', () => {
-            if(confirm('Прервать практику?')) {
-                // Отправляем аналитику прерывания
-                if(window.appState) {
-                    window.appState.sendAnalytics('practice_interrupted', { 
-                        duration_remaining: timer.remaining 
-                    });
-                }
-                window.location.href = 'index.html';
-            }
-        });
-        
-        // Блокируем скролл на время практики
-        document.body.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, { passive: false });
     </script>
 </body>
 </html>
