@@ -54,6 +54,10 @@ class BreathingPractice {
         
         // Glow эффект
         this.glowIntensity = 0.3;
+
+        this.figureImg = null;
+        this.figureReady = false;
+        this.figureNaturalSize = 346;
         
         this.init();
     }
@@ -65,6 +69,7 @@ class BreathingPractice {
             this.setPractice(this.currentPracticeIndex);
         }
         
+        this.loadFigure();
         this.setupEventListeners();
         this.setupCanvas();
         this.resetUI();
@@ -98,6 +103,25 @@ class BreathingPractice {
         this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         this.centerX = cssW / 2;
         this.centerY = cssH / 2;
+    }
+    
+    loadFigure() {
+        this.figureReady = false;
+        this.figureImg = new Image();
+        this.figureImg.decoding = 'async';
+        this.figureImg.onload = () => {
+            this.figureReady = true;
+            const w = this.figureImg?.naturalWidth;
+            const h = this.figureImg?.naturalHeight;
+            if (typeof w === 'number' && typeof h === 'number' && w > 0 && h > 0) {
+                this.figureNaturalSize = Math.max(w, h);
+            }
+            this.draw();
+        };
+        this.figureImg.onerror = () => {
+            this.figureReady = false;
+        };
+        this.figureImg.src = 'assets/figures/breathing-figure 3.svg';
     }
     
     setPractice(index) {
@@ -318,57 +342,40 @@ class BreathingPractice {
         this.setupCanvas();
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        const base = this.currentRadius;
-        const petalR = base * 0.9;
-        const offset = base * 0.55;
-        const petalY = petalR * 1.25;
-        const petalX = petalR * 1.05;
 
-        const outerA = 0.18 + this.glowIntensity * 0.22;
-        const innerA = 0.10 + this.glowIntensity * 0.18;
+        if (!this.figureReady || !this.figureImg) return;
 
-        const petalGradientAt = (cx, cy, r) => {
-            const g = this.ctx.createRadialGradient(cx - r * 0.2, cy - r * 0.2, r * 0.08, cx, cy, r);
-            g.addColorStop(0, `rgba(242, 234, 222, ${outerA})`);
-            g.addColorStop(0.55, `rgba(214, 197, 170, ${outerA * 0.55})`);
-            g.addColorStop(1, 'rgba(214, 197, 170, 0)');
-            return g;
-        };
+        const minScale = 0.62;
+        const maxScale = 0.98;
+        const p = (this.currentRadius - this.minRadius) / (this.maxRadius - this.minRadius);
+        const k = minScale + (maxScale - minScale) * Math.min(1, Math.max(0, p));
+
+        const baseSize = Math.min(this.centerX, this.centerY) * 2;
+        const targetSize = baseSize * k;
+        const drawW = targetSize;
+        const drawH = targetSize;
+        const x = this.centerX - drawW / 2;
+        const y = this.centerY - drawH / 2;
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'lighter';
-        this.ctx.filter = 'blur(18px)';
+        this.ctx.globalAlpha = 0.34 + this.glowIntensity * 0.22;
+        this.ctx.filter = `blur(${16 + this.glowIntensity * 10}px)`;
+        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
+        this.ctx.restore();
 
-        const petals = [
-            { x: this.centerX, y: this.centerY - offset, rx: petalX, ry: petalY },
-            { x: this.centerX, y: this.centerY + offset, rx: petalX, ry: petalY },
-            { x: this.centerX - offset, y: this.centerY, rx: petalY, ry: petalX },
-            { x: this.centerX + offset, y: this.centerY, rx: petalY, ry: petalX }
-        ];
-
-        for (const p of petals) {
-            this.ctx.beginPath();
-            this.ctx.ellipse(p.x, p.y, p.rx, p.ry, 0, 0, Math.PI * 2);
-            this.ctx.fillStyle = petalGradientAt(p.x, p.y, Math.max(p.rx, p.ry));
-            this.ctx.fill();
-        }
-
-        this.ctx.filter = 'blur(10px)';
-        this.ctx.beginPath();
-        this.ctx.ellipse(this.centerX, this.centerY, base * 0.62, base * 0.62, 0, 0, Math.PI * 2);
-        this.ctx.fillStyle = `rgba(242, 234, 222, ${innerA})`;
-        this.ctx.fill();
-
+        this.ctx.save();
+        this.ctx.globalCompositeOperation = 'source-over';
+        this.ctx.globalAlpha = 0.16 + this.glowIntensity * 0.14;
+        this.ctx.filter = `blur(${6 + this.glowIntensity * 5}px)`;
+        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
 
         this.ctx.save();
         this.ctx.globalCompositeOperation = 'screen';
-        this.ctx.filter = 'blur(2px)';
-        this.ctx.beginPath();
-        this.ctx.ellipse(this.centerX, this.centerY, base * 0.28, base * 0.28, 0, 0, Math.PI * 2);
-        this.ctx.fillStyle = `rgba(255, 255, 255, ${0.04 + this.glowIntensity * 0.06})`;
-        this.ctx.fill();
+        this.ctx.globalAlpha = 0.12 + this.glowIntensity * 0.10;
+        this.ctx.filter = 'blur(1px)';
+        this.ctx.drawImage(this.figureImg, x, y, drawW, drawH);
         this.ctx.restore();
     }
     
