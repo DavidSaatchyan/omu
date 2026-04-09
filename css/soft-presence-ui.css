@@ -377,17 +377,19 @@
 }
 
 .breathing-figure {
-    width: 200px;
-    height: 280px;
-    background-image: url('../assets/breathing-figure.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    border-radius: 0;
-    filter: none;
+    width: 220px;
+    height: 300px;
+    background: radial-gradient(ellipse at center, 
+        rgba(220, 200, 170, 0.5) 0%, 
+        rgba(220, 200, 170, 0.12) 45%,
+        rgba(220, 200, 170, 0) 100%);
+    border-radius: 50%;
+    filter: blur(28px);
     transform-origin: center;
     transition: none;
     will-change: transform, opacity;
+    /* Добавляем лёгкое свечение */
+    box-shadow: 0 0 40px rgba(220, 200, 170, 0.2);
 }
 
 /* Крупная кнопка PLAY/PAUSE */
