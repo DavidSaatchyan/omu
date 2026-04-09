@@ -11,25 +11,25 @@
 <body class="intro-screen">
     <div class="intro-container">
         
-        <!-- Логотип по центру сверху -->
+        <!-- Логотип выше -->
         <div class="intro-logo">
             <img src="assets/logo.svg" alt="Omu" class="omu-logo-img">
         </div>
         
-        <!-- Центральный контент (поднят выше) -->
+        <!-- Центральный контент (ближе к лого) -->
         <div class="intro-content">
             <div class="omu-title">
                 <span class="omu-small">Omu:</span>
                 <span class="break-small">Break to Awake</span>
             </div>
-            <div class="you-here">
+            <div class="you-here animate-here">
                 <span class="here-medium">Ты здесь</span>
             </div>
         </div>
         
-        <!-- Кнопка -->
+        <!-- Кнопка со светлой заливкой -->
         <div class="intro-footer">
-            <button id="enterBtn" class="enter-button">Войти в тишину</button>
+            <button id="enterBtn" class="enter-button-light">Войти в тишину</button>
         </div>
         
     </div>
@@ -42,7 +42,6 @@
         enterBtn.addEventListener('click', (e) => {
             e.preventDefault();
             enterBtn.style.transform = 'scale(0.96)';
-            enterBtn.style.opacity = '0.7';
             
             if(window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
