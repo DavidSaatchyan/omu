@@ -38,23 +38,31 @@
     <script src="js/transitions.js"></script>
     <script>
         const enterBtn = document.getElementById('enterBtn');
-        
-        enterBtn.addEventListener('click', (e) => {
-            e.preventDefault();
+
+        let entering = false;
+        const enterPractice = () => {
+            if (entering) return;
+            entering = true;
+
             enterBtn.style.transform = 'scale(0.96)';
-            
-            if(window.Telegram?.WebApp?.HapticFeedback) {
+
+            if (window.Telegram?.WebApp?.HapticFeedback) {
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
-            
+
             setTimeout(() => {
-                if(window.pageTransition) {
+                if (window.pageTransition) {
                     window.pageTransition.navigateTo('practice.html?v=20260409_2');
                 } else {
                     window.location.href = 'practice.html?v=20260409_2';
                 }
             }, 150);
-        });
+        };
+
+        // Mobile Telegram WebView can miss 'click' on fast taps; listen to pointer/touch as well.
+        enterBtn.addEventListener('pointerup', enterPractice);
+        enterBtn.addEventListener('touchend', enterPractice, { passive: true });
+        enterBtn.addEventListener('click', enterPractice);
     </script>
 </body>
 </html>
