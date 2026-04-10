@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Omu — Brake to Awake</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/soft-presence-ui.css">
+    <link rel="stylesheet" href="css/style.css?v=20260410_1">
+    <link rel="stylesheet" href="css/soft-presence-ui.css?v=20260410_1">
 </head>
 <body class="intro-screen">
     <div class="intro-container">
@@ -34,8 +34,8 @@
         
     </div>
     
-    <script src="js/telegram.js"></script>
-    <script src="js/transitions.js"></script>
+    <script src="js/telegram.js?v=20260410_1"></script>
+    <script src="js/transitions.js?v=20260410_1"></script>
     <script>
         const enterBtn = document.getElementById('enterBtn');
 
@@ -54,7 +54,7 @@
             // can be blocked. Navigate synchronously within the user gesture.
             const isMobileTg = Boolean(window.Telegram?.WebApp) && window.Telegram.WebApp.platform !== 'tdesktop';
             if (isMobileTg) {
-                window.location.href = 'practice.html?v=20260409_2';
+                window.location.replace('practice.html?v=20260409_2');
                 return;
             }
 
