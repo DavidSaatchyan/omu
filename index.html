@@ -50,13 +50,19 @@
                 window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
             }
 
-            setTimeout(() => {
-                if (window.pageTransition) {
-                    window.pageTransition.navigateTo('practice.html?v=20260409_2');
-                } else {
-                    window.location.href = 'practice.html?v=20260409_2';
-                }
-            }, 150);
+            // Important: on mobile Telegram WebView, navigation triggered asynchronously (setTimeout)
+            // can be blocked. Navigate synchronously within the user gesture.
+            const isMobileTg = Boolean(window.Telegram?.WebApp) && window.Telegram.WebApp.platform !== 'tdesktop';
+            if (isMobileTg) {
+                window.location.href = 'practice.html?v=20260409_2';
+                return;
+            }
+
+            if (window.pageTransition) {
+                window.pageTransition.navigateTo('practice.html?v=20260409_2');
+            } else {
+                window.location.href = 'practice.html?v=20260409_2';
+            }
         };
 
         // Mobile Telegram WebView can miss 'click' on fast taps; listen to pointer/touch as well.
